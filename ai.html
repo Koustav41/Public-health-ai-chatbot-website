@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Multilingual Public Health Chatbot — Lite</title>
+  <meta name="description" content="Multilingual AI chatbot for preventive healthcare, symptoms, vaccination, and outbreak alerts. Works in-browser; swap endpoints to connect real APIs." />
+  <style>
+    
+    :root{
+      --bg:#f7fafc; --card:#ffffff; --muted:#6b7280; --accent:#0ea5a4; --accent-2:#2563eb;
+      --danger:#dc2626; --success:#16a34a; --glass: rgba(255,255,255,0.6);
+      --max-width:1100px;
+      --radius:14px;
+      --shadow: 0 6px 20px rgba(15,23,42,0.06);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body,#app{height:100%}
+    body{
+      margin:0; background:linear-gradient(180deg,#ecfeff 0%,#f8fafc 100%);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      color:#0f172a;
+    }
+    .wrap{max-width:var(--max-width);margin:22px auto;padding:18px;display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
+    .fullwrap{max-width:var(--max-width);margin:12px auto;padding:18px}
+    header.site{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px;border-radius:12px;background:linear-gradient(90deg,var(--card),var(--glass));box-shadow:var(--shadow);border:1px solid rgba(15,23,42,0.04)}
+    header .title{display:flex;gap:12px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent-2),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px}
+    .title h1{margin:0;font-size:18px}
+    .title p{margin:0;font-size:12px;color:var(--muted)}
+    .controls{display:flex;gap:8px;align-items:center}
+    select, button.small{padding:8px 10px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:white}
+    .small{font-size:13px}
+    .badge{font-size:12px;padding:6px 8px;border-radius:999px;background:#ecfeff;color:#034d4d;border:1px solid rgba(3,77,77,0.06)}
+    /* ========== Chat Card ========== */
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;border:1px solid rgba(15,23,42,0.04)}
+    .chat{display:flex;flex-direction:column;height:68vh}
+    .messages{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+    .msg{max-width:78%;padding:10px 12px;border-radius:12px;line-height:1.3;word-break:break-word;box-shadow:0 1px 0 rgba(0,0,0,0.02)}
+    .msg.user{align-self:flex-end;background:linear-gradient(180deg,#2563eb,#1e40af);color:white;border-bottom-right-radius:6px}
+    .msg.bot{align-self:flex-start;background:#f8fafc;color:#0f172a;border-bottom-left-radius:6px;border:1px solid rgba(2,6,23,0.03)}
+    .meta{font-size:11px;color:var(--muted);margin-top:6px}
+    .sources{font-size:13px;margin-top:8px}
+    .typing{font-style:italic;color:var(--muted)}
+    /* ========== Composer ========== */
+    .composer{display:flex;gap:8px;padding:10px;border-top:1px dashed rgba(15,23,42,0.03);align-items:center}
+    textarea#txt{flex:1;resize:none;padding:10px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);min-height:56px;font-size:15px}
+    .btn{padding:10px 14px;border-radius:10px;border:none;background:var(--accent-2);color:white;font-weight:600;cursor:pointer}
+    .btn.secondary{background:#fff;border:1px solid rgba(15,23,42,0.06);color:var(--accent-2)}
+    .row{display:flex;gap:8px;align-items:center}
+    /* ========== Sidebar ========== */
+    aside .panel{margin-bottom:12px}
+    .panel h3{margin:0 0 8px 0;font-size:15px}
+    .quick{display:flex;flex-direction:column;gap:8px}
+    .quick button{padding:10px;border-radius:10px;border:1px solid rgba(15,23,42,0.04);background:#fbfdff;text-align:left}
+    .alert{padding:10px;border-radius:10px;background:linear-gradient(90deg,#fff7ed,#fff1f2);border:1px solid rgba(220,38,38,0.08);color:var(--danger)}
+    .ok{background:linear-gradient(90deg,#ecfffb,#f0fff8);color:var(--success);border:1px solid rgba(16,185,129,0.06)}
+    .muted{color:var(--muted);font-size:13px}
+    /* ========== Symptom wizard modal ========== */
+    .modal-back{position:fixed;inset:0;background:rgba(3,7,18,0.35);display:none;align-items:center;justify-content:center;z-index:80}
+    .modal{width:100%;max-width:720px;background:white;padding:18px;border-radius:12px;box-shadow:var(--shadow)}
+    .q{font-size:16px;margin-bottom:12px}
+    .choices{display:flex;gap:8px;flex-wrap:wrap}
+    .choices button{padding:10px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:#f8fafc}
+    /* ========== responsive ========== */
+    @media (max-width:980px){.wrap{grid-template-columns:1fr;padding:12px}.chat{height:62vh}.fullhide{display:none}}
+  </style>
+</head>
+<body>
+  <div class="fullwrap">
+    <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+    <div style="font-size:1.2rem; color:#22c55e; font-weight:600; margin-bottom:12px;">
+      Hi Priya Verma 👋
+    </div>
+
+    <div id="app">
+      <div class="fullwrap">
+        <header class="site card" role="banner" aria-label="Site header">
+          <div class="title">
+            <div class="logo">H+</div>
+            <div>
+              <h1>Public Health Chatbot</h1>
+              <p class="muted">Multilingual preventive healthcare & outbreak alerts — WhatsApp & SMS friendly</p>
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="badge" id="alert-badge" title="Outbreak status">No Alerts</div>
+
+            <label class="muted" for="lang">Language</label>
+            <select id="lang" aria-label="Select language">
+              <option value="en">English</option>
+              <option value="hi">हिन्दी</option>
+              <option value="bn">বাংলা</option>
+            </select>
+
+            <button class="small secondary" id="lowlit-toggle" title="Low literacy mode">Low-literacy</button>
+          </div>
+        </header>
+      </div>
+
+      <div class="wrap">
+        <!-- Chat column -->
+        <main class="card" aria-live="polite" aria-label="Chat area">
+          <div class="chat" role="region" aria-label="Chat messages">
+            <!-- Outbreak banner -->
+            <div id="outbreak-banner" style="display:none;margin-bottom:10px;padding:10px;border-radius:10px;border:1px solid rgba(220,38,38,0.06);background:#fff7f7;color:var(--danger);">
+              <strong>Outbreak Alert:</strong> <span id="outbreak-text"></span>
+              <div class="muted" style="font-size:12px;margin-top:6px">Local health advisory & recommended precautions available.</div>
+            </div>
+
+            <div class="messages" id="messages" tabindex="0" aria-label="Conversation">
+              <!-- initial bot greeting inserted by JS -->
+            </div>
+
+            <div class="composer" role="form" aria-label="Message composer">
+              <textarea id="txt" placeholder="Ask about symptoms, prevention, vaccines..." aria-label="Message input"></textarea>
+              <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                <div class="row">
+                  <button id="mic" class="btn secondary" title="Speak" aria-pressed="false">🎙️ Speak</button>
+                  <button id="send" class="btn" title="Send message">Send</button>
+                </div>
+                <div class="row" style="width:100%;gap:6px">
+                  <button id="whatsapp" class="btn secondary small" title="Share via WhatsApp">WhatsApp</button>
+                  <button id="sms" class="btn secondary small" title="Share via SMS">SMS</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <!-- Sidebar -->
+        <aside>
+          <div class="panel card">
+            <h3>Quick topics</h3>
+            <div class="quick" id="quicklist">
+              <button data-q="Dengue symptoms and prevention">Dengue — symptoms & prevention</button>
+              <button data-q="How to protect children from vaccine preventable diseases">Child vaccines</button>
+              <button data-q="What to do for high fever">Fever — what to do</button>
+              <button data-q="Is papaya leaf a cure for dengue?">Myth: Papaya leaf cure</button>
+            </div>
+          </div>
+
+          <div class="panel card">
+            <h3>Symptom checker</h3>
+            <p class="muted">Answer a few simple questions to get quick guidance.</p>
+            <button id="start-wizard" class="btn">Start</button>
+          </div>
+
+          <div class="panel card">
+            <h3>Integrations</h3>
+            <p class="muted">Use WhatsApp or SMS to reach users without internet browsers.</p>
+            <button id="link-whatsapp" class="btn secondary">Connect WhatsApp (demo)</button>
+            <button id="link-sms" class="btn secondary">SMS demo</button>
+          </div>
+
+          <div class="panel card fullhide">
+            <h3>Technical</h3>
+            <p class="muted">API mode: <span id="api-mode">MOCK</span></p>
+            <p class="muted" style="font-size:13px">To enable real backend, set API_BASE variable in the JS block to your server.</p>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Symptom Modal -->
+      <div class="modal-back" id="modal">
+        <div class="modal card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+          <h2 id="modalTitle">Symptom Checker</h2>
+          <p class="muted">Answer yes/no for the following.</p>
+          <div id="wizard-qs" style="margin-top:12px"></div>
+          <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+            <button id="wizard-cancel" class="btn secondary">Cancel</button>
+            <button id="wizard-submit" class="btn">Get Guidance</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+
+    const API_BASE = ""; // set to "" for MOCK, or e.g. "https://your-server.com/api"
+    const USE_MOCK = !API_BASE; // if true uses static heuristics
+
+    /* ---------- Multi-language strings ---------- */
+    const STR = {
+      en: {
+        greeting: "Hi — I am HealthBot. I can help with prevention, symptoms, and vaccine info. Ask me anything or tap a quick topic.",
+        typing: "Assistant is typing...",
+        lowRisk: "Low risk. Monitor symptoms and maintain hydration. Visit health centre if symptoms worsen.",
+        modRisk: "Moderate risk. Please consult a healthcare worker or nearby clinic within 24–48 hours.",
+        highRisk: "High risk. Seek urgent medical attention or call local emergency services.",
+        outbreakPrefix: "Outbreak:",
+        shareText: (msg)=>`HealthBot query: ${msg}`
+      },
+      hi: {
+        greeting: "नमस्ते — मैं हेल्थबॉट हूँ। मैं रोकथाम, लक्षण और टीकाकरण जानकारी दे सकता हूँ। कुछ पूछिए या किसी त्वरित विषय पर टैप करें।",
+        typing: "सहायक लेख रहा है...",
+        lowRisk: "कम जोखिम। लक्षण देखें और तरल पदार्थ लेते रहें। अगर लक्षण बढ़ें तो स्वास्थ्य केंद्र जाएँ।",
+        modRisk: "मध्यम जोखिम। 24–48 घंटे के अंदर क्लीनिक से परामर्श लें।",
+        highRisk: "उच्च जोखिम। तुरंत चिकित्सा सहायता लें।",
+        outbreakPrefix: "संकट:",
+        shareText: (msg)=>`HealthBot प्रश्न: ${msg}`
+      },
+      bn: {
+        greeting: "হ্যালো — আমি হেলথবট। আমি প্রতিরোধ, লক্ষণ এবং টিকাদান সম্পর্কে তথ্য দিতে পারি। কিছু জিজ্ঞাসা করুন বা একটি দ্রুত বিষয় টিপুন।",
+        typing: "সহকারী লিখছে...",
+        lowRisk: "কমানো ঝুঁকি। লক্ষণ পর্যবেক্ষণ করুন এবং জল নিয়মিত পান করুন। লক্ষণ বাড়লে স্বাস্থ্যকেন্দ্রে যান।",
+        modRisk: "মধ্যম ঝুঁকি। ২৪–৪৮ ঘণ্টার মধ্যে ক্লিনিকে পরামর্শ নিন।",
+        highRisk: "উচ্চ ঝুঁকি। জরুরি চিকিৎসা খুঁজুন।",
+        outbreakPrefix: "সতর্কতা:",
+        shareText: (msg)=>`HealthBot প্রশ্ন: ${msg}`
+      }
+    };
+
+    /* ========= DOM refs ========= */
+    const messagesEl = document.getElementById('messages');
+    const sendBtn = document.getElementById('send');
+    const txt = document.getElementById('txt');
+    const langSel = document.getElementById('lang');
+    const micBtn = document.getElementById('mic');
+    const quickList = document.getElementById('quicklist');
+    const startWizardBtn = document.getElementById('start-wizard');
+    const modal = document.getElementById('modal');
+    const wizardQs = document.getElementById('wizard-qs');
+    const wizardCancel = document.getElementById('wizard-cancel');
+    const wizardSubmit = document.getElementById('wizard-submit');
+    const alertBadge = document.getElementById('alert-badge');
+    const outbreakBanner = document.getElementById('outbreak-banner');
+    const outbreakText = document.getElementById('outbreak-text');
+    const whatsappBtn = document.getElementById('whatsapp');
+    const smsBtn = document.getElementById('sms');
+    const apiModeEl = document.getElementById('api-mode');
+    const lowLitToggle = document.getElementById('lowlit-toggle');
+
+    /* ========= state ========= */
+    let lang = langSel.value || 'en';
+    let contextWindow = []; // keep last N messages for context
+    let useTTS = true;
+    let lowLiteracy = false;
+
+    /* ========= INIT ========= */
+    apiModeEl.textContent = USE_MOCK ? 'MOCK' : 'LIVE';
+    insertBotMessage(STR[lang].greeting);
+
+    /* periodic poll for outbreak alerts (mock/live) */
+    async function checkAlerts(){
+      if(USE_MOCK){
+        // Mock: random outbreak for demo once every minute occasionally
+        const now = Date.now();
+        // simple deterministic "event" for demo: show alert when seconds in minute < 10
+        const s = new Date().getSeconds();
+        if(s < 10){
+          showOutbreak({active:true,text:"Dengue cases rising in nearby districts. Remove standing water & use repellents." ,severity:'high'});
+        } else {
+          showOutbreak({active:false});
+        }
+      } else {
+        try{
+          const res = await fetch(`${API_BASE}/alerts?region=auto`);
+          if(!res.ok) throw new Error('no alert');
+          const data = await res.json();
+          showOutbreak(data);
+        }catch(e){
+          console.warn('alert check failed',e);
+        }
+      }
+    }
+    function showOutbreak(data){
+      if(data && data.active){
+        outbreakBanner.style.display = 'block';
+        outbreakText.textContent = data.text;
+        alertBadge.textContent = 'ALERT';
+        alertBadge.classList.add('ok');
+        alertBadge.style.background = '#fff7f7';
+      } else {
+        outbreakBanner.style.display = 'none';
+        alertBadge.textContent = 'No Alerts';
+        alertBadge.classList.remove('ok');
+      }
+    }
+    checkAlerts();
+    setInterval(checkAlerts, 15_000); // every 15s for demo; increase in production
+
+    /* ========= Messaging helpers ========= */
+    function insertBotMessage(text, {sources, myth} = {}){
+      const wrap = document.createElement('div');
+      wrap.className = 'msg bot';
+      wrap.innerHTML = `<div>${escapeHtml(text)}</div>
+        ${sources ? `<div class="sources"><strong>Sources:</strong><ul>${sources.map(s=>`<li><a href="${s.url}" target="_blank" rel="noreferrer">${escapeHtml(s.title)}</a></li>`).join('')}</ul></div>` : ''}
+        ${myth ? `<div style="margin-top:8px;padding:8px;border-left:3px solid #f59e0b;background:#fff7ed;border-radius:6px"><strong>Myth detected:</strong> ${escapeHtml(myth)}</div>` : ''}`;
+      messagesEl.appendChild(wrap);
+      wrap.scrollIntoView({behavior:'smooth', block:'end'});
+      contextPush({role:'assistant',text});
+    }
+    function insertUserMessage(text){
+      const wrap = document.createElement('div');
+      wrap.className = 'msg user';
+      wrap.innerHTML = `<div>${escapeHtml(text)}</div><div class="meta" style="text-align:right">${new Date().toLocaleTimeString()}</div>`;
+      messagesEl.appendChild(wrap);
+      wrap.scrollIntoView({behavior:'smooth', block:'end'});
+      contextPush({role:'user',text});
+    }
+    function insertTyping(){
+      const el = document.createElement('div');
+      el.className = 'msg bot typing';
+      el.id = 'typing-ind';
+      el.textContent = STR[lang].typing;
+      messagesEl.appendChild(el);
+      el.scrollIntoView({behavior:'smooth', block:'end'});
+    }
+    function removeTyping(){
+      const t = document.getElementById('typing-ind');
+      if(t) t.remove();
+    }
+    function contextPush(obj){
+      contextWindow.push(obj);
+      if(contextWindow.length>8) contextWindow.shift();
+    }
+
+    /* ========= Simple NLU/MOCK logic ========= */
+    function mockChatResponse(msg, language){
+      const m = msg.toLowerCase();
+      // myth detection example
+      if(/papaya|papita|लौकी|haldi|turmeric/i.test(m)){
+        return {reply: {en:"No reliable evidence supports papaya leaf as a cure. Follow tested medical advice.",hi:"पपीता/पपीया पत्ते उपचार के रूप में प्रमाणित नहीं हैं। चिकित्सकीय सलाह लें।",bn:"পেঁপে পাতার কোনো নির্ভরযোগ্য প্রমাণ নেই। চিকিৎসকের পরামর্শ নিন।"}[language], sources:[{title:"WHO — General",url:"https://www.who.int"}], myth:"This claim is not supported by scientific evidence."};
+      }
+      // simple symptom hints
+      if(/fever|bukhar|জ্বর/i.test(m)){
+        return {reply: {en:"Fever may be due to infection. Monitor temperature; if >38°C or persistent for 48hrs, seek testing.",hi:"बुखार संक्रमण के कारण हो सकता है। 48 घंटों से अधिक या 38°C से ऊपर हो तो जांच कराएँ।",bn:"জ্বর সংক্রমণের লক্ষণ হতে পারে। ৪৮ ঘণ্টা বা ৩৮°C ছাড়ালে পরীক্ষা করান।"}[language], sources:[{title:"Local Health Guidelines",url:"https://www.mohfw.gov.in"}]};
+      }
+      // general prevention
+      if(/dengue|मच्छर|ডেঙ্গি/i.test(m)){
+        return {reply: {en:"Dengue prevention: remove standing water, use nets/repellents, cover water containers.",hi:"डेंगू रोकथाम: खड़े पानी हटाएँ, रेपेलेंट और मच्छरदानी का प्रयोग करें।",bn:"ডেঙ্গু প্রতিরোধ: জলষ্টান সরান, নেট/রিপেলেন্ট ব্যবহার করুন।"}[language], sources:[{title:"WHO Dengue",url:"https://www.who.int/health-topics/dengue"}]};
+      }
+      // vaccination queries
+      if(/vaccine|टीका|টিকা/i.test(m)){
+        return {reply: {en:"Vaccination schedules vary by age. For children follow national immunisation schedule; for adults see local clinic.",hi:"टीकाकरण कार्यक्रम आयु के अनुसार बदलता है। बच्चों के लिए राष्ट्रीय कार्यक्रम देखें।",bn:"টিকাদান সূচি বয়সভিত্তিক। শিশুদের জন্য জাতীয় তালিকা দেখুন।"}[language], sources:[{title:"National Immunisation Programme",url:"https://www.mohfw.gov.in"}]};
+      }
+      // fallback
+      return {reply: {en:"I can help with prevention, symptoms and vaccines. Please share your question or select a quick topic.",hi:"मैं रोकथाम, लक्षण और टीकाकरण में मदद कर सकता हूँ। प्रश्न भेजें या त्वरित विषय चुनें।",bn:"আমি প্রতিরোধ, লক্ষণ এবং টিকাদান নিয়ে সাহায্য করতে পারি। প্রশ্ন করুন বা দ্রুত বিষয় চয়ন করুন।"}[language]};
+    }
+
+    /* ========= Send message flow ========= */
+    async function sendMessage(raw){
+      const text = raw || txt.value.trim();
+      if(!text) return;
+      insertUserMessage(text);
+      txt.value = '';
+      // run myth-check in parallel (mock/live)
+      if(USE_MOCK){
+        // quick local myth heuristic
+        const mythRegex = /papaya|papita|haldi|turmeric|homeopathy/i;
+        if(mythRegex.test(text)){
+          setTimeout(()=> insertBotMessage(STR[lang].typing, {myth:"Common myth flagged. Please follow verified medical guidance."}), 600);
+        }
+      } else {
+        // call real myth endpoint (non-blocking)
+        fetch(`${API_BASE}/myth-check`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang})})
+          .then(r=>r.json()).then(d=>{ if(d.isMyth) insertBotMessage(d.correction || 'Myth flagged',{myth:d.correction}); }).catch(()=>{});
+      }
+
+      insertTyping();
+
+      try{
+        let res;
+        if(USE_MOCK){
+          await sleep(700 + Math.random()*500);
+          res = mockChatResponse(text, lang);
+        } else {
+          const r = await fetch(`${API_BASE}/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,lang,context:contextWindow})});
+          res = await r.json();
+        }
+        removeTyping();
+        if(res){
+          const reply = typeof res.reply === 'object' ? res.reply[lang] || res.reply.en : res.reply;
+          insertBotMessage(reply, {sources:res.sources, myth:res.myth ? res.myth : null});
+          // optional TTS
+          if(useTTS) speakText(reply);
+        }
+      } catch(e){
+        removeTyping();
+        insertBotMessage({en:"Sorry, network error. Try again.",hi:"क्षमा करें, नेटवर्क त्रुटि। पुनः प्रयास करें।",bn:"দুঃখিত, নেটওয়ার্ক ত্রুটি। পুনরায় চেষ্টা করুন।"}[lang]);
+      }
+    }
+
+    /* ========= Speech (STT & TTS) ========= */
+    function supportsSpeechRecognition(){ return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
+    function getRecognition(){
+      const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
+      return Ctor ? new Ctor() : null;
+    }
+    let recog = null;
+    micBtn.addEventListener('click', async ()=>{
+      if(!supportsSpeechRecognition()){
+        alert({en:"Speech not supported in this browser",hi:"ब्राउज़र में भाषण समर्थित नहीं",bn:"ব্রাউজারে শব্দ সমর্থিত নয়"}[lang]);
+        return;
+      }
+      if(recog){ // stop
+        try{recog.stop();}catch{}
+        recog=null; micBtn.textContent='🎙️ Speak'; micBtn.setAttribute('aria-pressed','false'); return;
+      }
+      recog = getRecognition();
+      recog.lang = lang==='hi'?'hi-IN': lang==='bn'?'bn-IN' : 'en-IN';
+      recog.interimResults = false; recog.maxAlternatives = 1;
+      recog.onresult = (e)=>{ const text = e.results[0][0].transcript; sendMessage(text); };
+      recog.onend = ()=>{ recog=null; micBtn.textContent='🎙️ Speak'; micBtn.setAttribute('aria-pressed','false'); };
+      recog.onerror = ()=>{ recog=null; micBtn.textContent='🎙️ Speak'; micBtn.setAttribute('aria-pressed','false'); };
+      micBtn.textContent='⏺️ Listening...'; micBtn.setAttribute('aria-pressed','true');
+      try{recog.start();}catch(e){console.warn(e); recog=null; micBtn.textContent='🎙️ Speak'; micBtn.setAttribute('aria-pressed','false');}
+    });
+
+    function supportsTTS(){ return 'speechSynthesis' in window; }
+    function speakText(txtToSpeak){
+      if(!supportsTTS()) return;
+      const u = new SpeechSynthesisUtterance(txtToSpeak);
+      u.lang = lang==='hi'?'hi-IN': lang==='bn'?'bn-IN':'en-IN';
+      u.rate = 0.95; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+    }
+
+    /* ========= Quick replies & UI wiring ========= */
+    sendBtn.addEventListener('click', ()=>sendMessage());
+    txt.addEventListener('keydown', (e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); } });
+    langSel.addEventListener('change', (e)=>{ lang = e.target.value; /* update greeting if first */ });
+    document.querySelectorAll('#quicklist button').forEach(b=>{
+      b.addEventListener('click', ()=> sendMessage(b.dataset.q));
+    });
+
+    /* WhatsApp & SMS share */
+    whatsappBtn.addEventListener('click', ()=>{
+      const lastUser = contextWindow.slice().reverse().find(m=>m.role==='user');
+      const message = lastUser ? lastUser.text : 'Hi, please share health info.';
+      const textToShare = STR[lang].shareText(message);
+      // prefill wa.me link (works on mobile & desktop with WhatsApp installed)
+      const waLink = `https://wa.me/?text=${encodeURIComponent(textToShare)}`;
+      window.open(waLink, '_blank');
+    });
+    smsBtn.addEventListener('click', ()=>{
+      const lastUser = contextWindow.slice().reverse().find(m=>m.role==='user');
+      const message = lastUser ? lastUser.text : 'Hi, please share health info.';
+      const textToShare = STR[lang].shareText(message);
+      const smsLink = `sms:?body=${encodeURIComponent(textToShare)}`;
+      window.location.href = smsLink;
+    });
+
+    /* ========= Symptom Wizard ========= */
+    const QUESTIONS = [
+      {id:'fever', q:{en:'Do you have fever (temperature >38°C)?',hi:'क्या आपको बुखार है (38°C से ऊपर)?',bn:'আপনি কি জ্বর অনুভব করছেন (৩৮°C এর বেশি)?'}},
+      {id:'bleeding', q:{en:'Any unusual bleeding or severe abdominal pain?',hi:'कोई असामान्य रक्तस्राव या पेट में तेज दर्द?',bn:'অস্বাভাবিক রক্তপাত বা তীব্র পেটব্যথা?'}},
+      {id:'rash', q:{en:'Any skin rash or severe headache?',hi:'कोई त्वचा पर चकत्ते या तेज सिरदर्द?',bn:'চর্মে র‍্যাশ বা তীব্র মাথাব্যথা?'}},
+      {id:'travel', q:{en:'Recent travel to an outbreak-prone area?',hi:'क्या हाल ही में आप किसी प्रभावित इलाके गए थे?',bn:'আপনি কি সম্প্রতি কোনো আক্রান্ত এলাকায় গিয়েছেন?'}},
+    ];
+    let wizardAnswers = {};
+
+    startWizardBtn.addEventListener('click', ()=>openWizard());
+    function openWizard(){
+      wizardAnswers = {};
+      wizardQs.innerHTML = '';
+      QUESTIONS.forEach((qq, idx)=>{
+        const div = document.createElement('div');
+        div.style.marginBottom = '10px';
+        div.innerHTML = `<div class="q">${escapeHtml(qq.q[lang])}</div>
+          <div class="choices">
+            <button data-id="${qq.id}" data-val="yes">Yes</button>
+            <button data-id="${qq.id}" data-val="no">No</button>
+          </div>`;
+        wizardQs.appendChild(div);
+      });
+      // attach choice listeners
+      wizardQs.querySelectorAll('button').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          const id = btn.dataset.id; const v = btn.dataset.val;
+          wizardAnswers[id]=v;
+          // visual feedback
+          const sibling = btn.parentElement;
+          sibling.querySelectorAll('button').forEach(b=>b.style.opacity='0.6');
+          btn.style.opacity='1';
+        });
+      });
+      modal.style.display='flex';
+    }
+    wizardCancel.addEventListener('click', ()=>{ modal.style.display='none'; });
+    wizardSubmit.addEventListener('click', async ()=>{
+      // simple scoring
+      const yesCount = Object.values(wizardAnswers).filter(v=>v==='yes').length;
+      modal.style.display='none';
+      if(USE_MOCK){
+        if(yesCount>=3){
+          insertBotMessage(STR[lang].highRisk, {});
+          speakText(STR[lang].highRisk);
+        } else if(yesCount===1 || yesCount===2){
+          insertBotMessage(STR[lang].modRisk, {});
+          speakText(STR[lang].modRisk);
+        } else {
+          insertBotMessage(STR[lang].lowRisk, {});
+          speakText(STR[lang].lowRisk);
+        }
+      } else {
+        try{
+          const r = await fetch(`${API_BASE}/symptoms`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers:wizardAnswers,lang})});
+          const data = await r.json();
+          insertBotMessage(data.guidance || STR[lang].lowRisk);
+          if(useTTS) speakText(data.guidance || STR[lang].lowRisk);
+        }catch(e){ insertBotMessage('Error checking symptoms.'); }
+      }
+    });
+
+    /* ========= Utility ========= */
+    function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+    function escapeHtml(s){
+      if(!s) return '';
+      return String(s).replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    /* ========= Low-literacy toggle (UI helper) ========= */
+    lowLitToggle.addEventListener('click', ()=>{
+      lowLiteracy = !lowLiteracy;
+      txt.placeholder = lowLiteracy ? {en:'Speak or type (simple words)...',hi:'बोलें या टाइप करें (सरल शब्द)...',bn:'কথা বলুন বা টাইপ করুন (সহজ শব্দ)...'}[lang] : 'Ask about symptoms, prevention, vaccines...';
+      lowLitToggle.textContent = lowLiteracy ? 'Low-literacy: ON' : 'Low-literacy';
+    });
+
+    /* Optional: load sample baseline messages for demo */
+    function seedConversation(){
+      insertBotMessage({en:'You can ask about dengue prevention, vaccination schedules, or locate nearest clinics.',hi:'आप डेंगू रोकथाम, टीकाकरण तालिका या नज़दीकी क्लीनिक के बारे में पूछ सकते हैं।',bn:'আপনি ডেঙ্গু প্রতিরোধ, টিকাদান সূচি বা নিকটস্থ ক্লিনিক সম্পর্কে জানতে পারেন।'}[lang]);
+    }
+    seedConversation();
+
+    /* Accessibility focus */
+    messagesEl.addEventListener('keydown', (e)=>{ if(e.key==='Home') messagesEl.scrollTop=0; if(e.key==='End') messagesEl.scrollTop=messagesEl.scrollHeight; });
+
+    /* End of script */
+    </script>
+  </div>
+</body>
+</html>
+

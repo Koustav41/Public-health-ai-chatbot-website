@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MediTrack Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard">
+  
+  <aside class="sidebar" role="navigation" aria-label="Main Navigation">
+    <h2 class="logo">🩺 MediTrack</h2>
+    <nav>
+      <ul>
+        <li><a href="#" onclick="showSection('reports')" id="nav-reports">📁 Reports</a></li>
+        <li><a href="ai.html" id="nav-chat">🤖 AI Analysis</a></li>
+        <li><a href="#" onclick="showSection('hospitals')" id="nav-hospitals">🏥 Hospitals</a></li>
+        <li><a href="#" onclick="showSection('profile')" id="nav-profile">👤 Profile</a></li>
+        <li><a href="index.html" class="logout">🔴 Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  
+  <main>
+    <header>
+      <h3>Welcome Back, <span class="username">Priya Verma</span>👋</h3>
+    </header>
+
+    
+    <section id="reports" class="dashboard-section active" aria-labelledby="nav-reports">
+      <h2>My Reports</h2>
+      <div class="reports-grid">
+        <div class="report-card">
+          <span>ABDM ECG Report.pdf</span>
+          <button aria-label="View Report">👁️</button>
+          <button aria-label="Download Report">⬇️</button>
+        </div>
+        <div class="report-card">
+          <span>X-Ray Result.pdf</span>
+          <button aria-label="View Report">👁️</button>
+          <button aria-label="Download Report">⬇️</button>
+        </div>
+        <button class="btn upload-btn">Upload Report</button>
+      </div>
+    </section>
+
+    
+    <section id="chat" class="dashboard-section" aria-labelledby="nav-chat">
+      <h2>AI Health Assistant</h2>
+      <div class="chat-box" id="chat-box">
+        <div class="bot-msg">Hello 👋 I'm your AI health assistant. How can I help you today?</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Ask about your health..." aria-label="Chat Input">
+        <button onclick="sendMessage()" aria-label="Send Message">Send</button>
+      </div>
+    </section>
+
+  
+    <section id="hospitals" class="dashboard-section" aria-labelledby="nav-hospitals">
+      <h2>Hospitals Near Me</h2>
+      <input type="text" placeholder="Search hospital..." aria-label="Search Hospital">
+      <div class="map">[Google Maps Integration Here]</div>
+    </section>
+
+  
+    <section id="profile" class="dashboard-section" aria-labelledby="nav-profile">
+      <h2>Profile</h2>
+      <div class="profile-card">
+        <h3>Ramesh Yadav</h3>
+        <p>📍 Delhi, India</p>
+        <p>📞 +91 9123458410</p>
+        <p>Blood Group: O+</p>
+        <p>Allergies: Dust</p>
+        <p>Conditions: Asthma, Diabetes</p>
+      </div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
