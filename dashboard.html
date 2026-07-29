@@ -1,81 +1,428 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>MediTrack Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mediyogi Patient Portal Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
-<body class="dashboard">
-  
-  <aside class="sidebar" role="navigation" aria-label="Main Navigation">
-    <h2 class="logo">🩺 MediTrack</h2>
-    <nav>
-      <ul>
-        <li><a href="#" onclick="showSection('reports')" id="nav-reports">📁 Reports</a></li>
-        <li><a href="ai.html" id="nav-chat">🤖 AI Analysis</a></li>
-        <li><a href="#" onclick="showSection('hospitals')" id="nav-hospitals">🏥 Hospitals</a></li>
-        <li><a href="#" onclick="showSection('profile')" id="nav-profile">👤 Profile</a></li>
-        <li><a href="index.html" class="logout">🔴 Logout</a></li>
-      </ul>
-    </nav>
-  </aside>
 
-  
-  <main>
-    <header>
-      <h3>Welcome Back, <span class="username">Priya Verma</span>👋</h3>
-    </header>
+<body>
 
-    
-    <section id="reports" class="dashboard-section active" aria-labelledby="nav-reports">
-      <h2>My Reports</h2>
-      <div class="reports-grid">
-        <div class="report-card">
-          <span>ABDM ECG Report.pdf</span>
-          <button aria-label="View Report">👁️</button>
-          <button aria-label="Download Report">⬇️</button>
+  <div class="app-container">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🩺</div>
+        <span>Mediyogi</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#" class="sidebar-link active" data-section="reports">
+          <span>📁</span> <span>Smart EHR Reports</span>
+        </a>
+        <a href="#" class="sidebar-link" data-section="chat">
+          <span>🤖</span> <span>AI Health Assistant</span>
+        </a>
+        <a href="#" class="sidebar-link" data-section="hospitals">
+          <span>🏥</span> <span>Hospital Radar</span>
+        </a>
+        <a href="#" class="sidebar-link" data-section="vitals">
+          <span>💓</span> <span>Vitals & Trackers</span>
+        </a>
+        <a href="#" class="sidebar-link" data-section="profile">
+          <span>👤</span> <span>Patient Profile</span>
+        </a>
+      </nav>
+
+      <div style="margin-top:auto;">
+        <a href="index.html" class="btn btn-danger btn-sm" style="width:100%;">🔴 Logout</a>
+      </div>
+    </aside>
+
+    <!-- DASHBOARD MAIN CONTENT AREA -->
+    <main class="dashboard-main">
+
+      <!-- HEADER -->
+      <header class="dashboard-header">
+        <div class="user-profile-summary">
+          <div class="avatar">PV</div>
+          <div>
+            <h2 style="font-size:1.3rem; font-weight:800;">Welcome back, <span class="user-disp-name">Priya Verma</span>
+              👋</h2>
+            <div style="font-size:0.85rem; color:var(--text-muted);">
+              Health ID: <span class="user-health-id"
+                style="color:var(--primary); font-weight:600;">ABDM-91-8420-1129-90</span>
+            </div>
+          </div>
         </div>
-        <div class="report-card">
-          <span>X-Ray Result.pdf</span>
-          <button aria-label="View Report">👁️</button>
-          <button aria-label="Download Report">⬇️</button>
+
+        <div style="display:flex; gap:12px;">
+          <button id="start-symptom-wizard" class="btn btn-primary">⚡ Symptom Checker Quiz</button>
+          <a href="ai.html" class="btn btn-secondary">Full AI Workspace</a>
         </div>
-        <button class="btn upload-btn">Upload Report</button>
-      </div>
-    </section>
+      </header>
 
-    
-    <section id="chat" class="dashboard-section" aria-labelledby="nav-chat">
-      <h2>AI Health Assistant</h2>
-      <div class="chat-box" id="chat-box">
-        <div class="bot-msg">Hello 👋 I'm your AI health assistant. How can I help you today?</div>
-      </div>
-      <div class="chat-input">
-        <input type="text" id="userInput" placeholder="Ask about your health..." aria-label="Chat Input">
-        <button onclick="sendMessage()" aria-label="Send Message">Send</button>
-      </div>
-    </section>
+      <!-- SECTION 1: SMART REPORTS & EHR -->
+      <section id="reports" class="dashboard-section active">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <div>
+            <h3 style="font-size:1.4rem; font-weight:700;">Diagnostic Reports & Smart EHR</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem;">AI OCR automatically extracts lab values and
+              highlights abnormal parameters.</p>
+          </div>
+          <div>
+            <label class="btn btn-primary" style="cursor:pointer;">
+              📤 Upload PDF / Image Report
+              <input type="file" id="report-file-input" style="display:none;" accept=".pdf,.png,.jpg,.jpeg" />
+            </label>
+          </div>
+        </div>
 
-  
-    <section id="hospitals" class="dashboard-section" aria-labelledby="nav-hospitals">
-      <h2>Hospitals Near Me</h2>
-      <input type="text" placeholder="Search hospital..." aria-label="Search Hospital">
-      <div class="map">[Google Maps Integration Here]</div>
-    </section>
+        <div id="reports-grid" class="reports-grid">
+          <!-- Populated by script.js -->
+        </div>
+      </section>
 
-  
-    <section id="profile" class="dashboard-section" aria-labelledby="nav-profile">
-      <h2>Profile</h2>
-      <div class="profile-card">
-        <h3>Ramesh Yadav</h3>
-        <p>📍 Delhi, India</p>
-        <p>📞 +91 9123458410</p>
-        <p>Blood Group: O+</p>
-        <p>Allergies: Dust</p>
-        <p>Conditions: Asthma, Diabetes</p>
+      <!-- SECTION 2: AI HEALTH ASSISTANT -->
+      <section id="chat" class="dashboard-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div>
+            <h3 style="font-size:1.4rem; font-weight:700;">Multilingual AI Health Assistant</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Get instant clinical guidance powered by
+              evidence-based algorithms.</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <label style="font-size:0.85rem; color:var(--text-muted);">Language:</label>
+            <select id="chat-lang-select" class="form-control" style="width:140px; padding:6px 10px;">
+              <option value="en">English</option>
+              <option value="hi">हिन्दी (Hindi)</option>
+              <option value="bn">বাংলা (Bengali)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="glass-card chat-wrapper" style="padding:0; overflow:hidden;">
+          <div class="chat-container">
+            <div id="chat-messages" class="chat-box">
+              <div class="chat-message bot">
+                <div>Hello Priya 👋 I am Mediyogi AI. How can I assist with your health today?</div>
+              </div>
+            </div>
+
+            <div class="chat-composer">
+              <div class="composer-input-row">
+                <input type="text" id="chat-input" class="form-control"
+                  placeholder="Ask about symptoms, vaccines, fever precautions..."
+                  onkeypress="if(event.key === 'Enter') sendChatMessage()" />
+                <button id="mic-btn" class="btn btn-secondary">🎙️ Speak</button>
+                <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding:20px; border-left:1px solid var(--border-color); background:rgba(15,23,42,0.4);">
+            <h4 style="margin-bottom:12px; font-size:0.95rem;">Quick Prompts</h4>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <button class="btn btn-secondary btn-sm" style="text-align:left; justify-content:flex-start;"
+                onclick="sendChatMessage('What to do for high fever?')">🤒 Fever Precautions</button>
+              <button class="btn btn-secondary btn-sm" style="text-align:left; justify-content:flex-start;"
+                onclick="sendChatMessage('Dengue symptoms & prevention')">🦟 Dengue Prevention</button>
+              <button class="btn btn-secondary btn-sm" style="text-align:left; justify-content:flex-start;"
+                onclick="sendChatMessage('Child vaccine schedule')">💉 Immunization Schedule</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: HOSPITAL RADAR -->
+      <section id="hospitals" class="dashboard-section">
+        <div class="hospital-header-box">
+          <div>
+            <h3 style="font-size:1.4rem; font-weight:700;">Hospital Radar & ICU Bed Availability</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Find emergency medical centers globally or locally and reserve appointment slots.</p>
+          </div>
+          <div class="hospital-search-toolbar">
+            <div class="hospital-input-wrapper">
+              <input type="text" id="hospital-search" class="form-control"
+                placeholder="Search hospital by name, area, or city..." onkeyup="handleHospitalSearchKeyup(event)" />
+              <button type="button" class="btn-clear-search" id="btn-clear-hospital-search" onclick="clearHospitalSearch()" style="display:none;" title="Clear search">&times;</button>
+            </div>
+            <button class="btn btn-primary" onclick="triggerGlobalHospitalSearch()">🔍 Search Map</button>
+            <button class="btn btn-secondary" onclick="locateUserHospitals()" title="Locate near me">📍 Near Me</button>
+          </div>
+        </div>
+
+        <div id="hospital-search-status" class="search-status-bar" style="display:none;"></div>
+
+        <div id="hospital-map"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; margin-bottom:10px;">
+          <h4 style="font-size:1.1rem; font-weight:700;">Nearby Hospitals & Medical Facilities</h4>
+          <span id="hospital-count-badge" class="badge badge-info">Showing 4 Hospitals</span>
+        </div>
+
+        <div id="hospitals-container" class="hospital-list">
+          <!-- Populated by script.js -->
+        </div>
+      </section>
+
+      <!-- SECTION 4: HEALTH VITALS & TRACKERS -->
+      <section id="vitals" class="dashboard-section">
+        <h3 style="font-size:1.4rem; font-weight:700; margin-bottom:8px;">Health Vitals & Daily Trackers</h3>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">Monitor blood pressure, heart rate
+          trends, water intake, and BMI.</p>
+
+        <div class="vitals-grid">
+          <!-- Canvas Blood Pressure Chart -->
+          <div class="glass-card" style="grid-column: span 2;">
+            <h4 style="margin-bottom:16px;">Blood Pressure & Heart Rate Trend (Weekly)</h4>
+            <canvas id="vitals-chart"></canvas>
+          </div>
+
+          <!-- Water Intake Card -->
+          <div class="glass-card">
+            <h4 style="margin-bottom:16px;">Water Hydration Log</h4>
+            <div class="water-tracker-box">
+              <div class="water-wave-circle">
+                <div id="water-wave" class="water-wave-inner"></div>
+                <span id="water-count">5</span> / 8
+              </div>
+              <div>
+                <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">Daily target: 2.5 Liters</p>
+                <div style="display:flex; gap:8px;">
+                  <button class="btn btn-primary btn-sm" onclick="addWaterGlass()">+ 1 Glass</button>
+                  <button class="btn btn-secondary btn-sm" onclick="resetWater()">Reset</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BMI Calculator Card -->
+          <div class="glass-card">
+            <h4 style="margin-bottom:16px;">BMI Calculator</h4>
+            <div class="form-group">
+              <input type="number" id="bmi-weight" class="form-control" placeholder="Weight (kg)" value="65" />
+            </div>
+            <div class="form-group">
+              <input type="number" id="bmi-height" class="form-control" placeholder="Height (cm)" value="168" />
+            </div>
+            <button class="btn btn-secondary btn-sm" style="width:100%; margin-bottom:12px;"
+              onclick="calculateBMI()">Calculate BMI</button>
+            <div id="bmi-result" style="font-size:0.9rem; color:var(--primary); font-weight:600;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: PATIENT PROFILE & HEALTH ID -->
+      <section id="profile" class="dashboard-section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h3 style="font-size:1.4rem; font-weight:700;">Patient Profile & Public Emergency Health ID</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Manage your emergency medical information, ABDM health credentials, and public sharing settings.</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-secondary btn-sm" onclick="openPublicProfileView()">🌐 View Public Profile</button>
+            <button class="btn btn-primary btn-sm" onclick="copyPublicProfileLink()">📋 Copy Public Share Link</button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+          <!-- Profile Form -->
+          <div class="glass-card">
+            <h4 style="margin-bottom:16px; font-size:1.1rem; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+              👤 Personal & Medical Information
+            </h4>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" id="prof-name" class="form-control" placeholder="e.g. Priya Verma" />
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="prof-email" class="form-control" placeholder="e.g. priya@health.in" />
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="prof-phone" class="form-control" placeholder="+91 98765 43210" />
+              </div>
+              <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" id="prof-dob" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Gender</label>
+                <select id="prof-gender" class="form-control">
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Non-Binary">Non-Binary</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+              <div class="form-group">
+                <label>Blood Group</label>
+                <select id="prof-blood" class="form-control">
+                  <option value="O+">O Positive (O+)</option>
+                  <option value="O-">O Negative (O-)</option>
+                  <option value="A+">A Positive (A+)</option>
+                  <option value="A-">A Negative (A-)</option>
+                  <option value="B+">B Positive (B+)</option>
+                  <option value="B-">B Negative (B-)</option>
+                  <option value="AB+">AB Positive (AB+)</option>
+                  <option value="AB-">AB Negative (AB-)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>City / Location</label>
+                <input type="text" id="prof-city" class="form-control" placeholder="e.g. New Delhi" />
+              </div>
+              <div class="form-group">
+                <label>Organ Donor</label>
+                <select id="prof-organ-donor" class="form-control">
+                  <option value="Yes">Yes (Registered)</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+            </div>
+
+            <h4 style="margin:20px 0 14px; font-size:1.05rem; border-bottom:1px solid var(--border-color); padding-bottom:10px; color:var(--warning);">
+              🚨 Emergency Medical Details
+            </h4>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <div class="form-group">
+                <label>Emergency Contact Name</label>
+                <input type="text" id="prof-emergency-name" class="form-control" placeholder="Name & Relation" />
+              </div>
+              <div class="form-group">
+                <label>Emergency Contact Phone</label>
+                <input type="text" id="prof-emergency-phone" class="form-control" placeholder="+91 98765 43211" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Known Allergies (Severe / Critical)</label>
+              <input type="text" id="prof-allergies" class="form-control" placeholder="e.g. Penicillin, Peanuts, Latex" />
+            </div>
+
+            <div class="form-group">
+              <label>Chronic Medical Conditions</label>
+              <input type="text" id="prof-conditions" class="form-control" placeholder="e.g. Asthma, Type 2 Diabetes, Hypertension" />
+            </div>
+
+            <div class="form-group">
+              <label>Current Daily Medications</label>
+              <input type="text" id="prof-medications" class="form-control" placeholder="e.g. Albuterol 100mcg, Metformin 500mg" />
+            </div>
+
+            <div style="margin:16px 0 20px; background:rgba(255,255,255,0.03); padding:12px; border-radius:10px; border:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between;">
+              <div>
+                <strong style="font-size:0.9rem; display:block;">Enable Public Emergency Access</strong>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Allow first responders to scan QR code & view emergency profile</span>
+              </div>
+              <label class="switch" style="position:relative; display:inline-block; width:44px; height:24px;">
+                <input type="checkbox" id="prof-public-toggle" checked style="opacity:0; width:0; height:0;" />
+                <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#334155; transition:.3s; border-radius:24px;"></span>
+              </label>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%;" onclick="saveUserProfile()">💾 Save Profile & Sync Emergency Card</button>
+          </div>
+
+          <!-- ABDM Health Card Preview -->
+          <div style="display:flex; flex-direction:column; gap:20px;">
+            <div class="glass-card" style="background:linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.12) 100%); border:1px solid rgba(16,185,129,0.3); position:relative; overflow:hidden;">
+              <div style="position:absolute; top:-20px; right:-20px; width:120px; height:120px; background:rgba(16,185,129,0.1); border-radius:50%; filter:blur(20px);"></div>
+              
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div>
+                  <span style="font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--primary);">Ayushman Bharat Digital Health ID</span>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">National Health Authority • Verified 🇮🇳</div>
+                </div>
+                <span id="card-public-status" class="badge badge-success">🟢 Public Access Active</span>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                <div id="card-avatar" class="avatar" style="width:60px; height:60px; font-size:1.5rem; background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color:#fff; border-radius:16px; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 4px 15px var(--primary-glow);">PV</div>
+                <div>
+                  <h3 id="card-user-name" style="font-size:1.4rem; font-weight:800; color:#fff;">Priya Verma</h3>
+                  <p id="card-health-id" style="font-size:1.05rem; font-family:monospace; color:var(--secondary); font-weight:700; margin-top:2px;">ABDM-91-8420-1129-90</p>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; font-size:0.88rem; margin-bottom:20px;">
+                <div><span style="color:var(--text-muted);">Gender:</span> <strong id="card-gender" style="color:#fff;">Female</strong></div>
+                <div><span style="color:var(--text-muted);">Year of Birth:</span> <strong id="card-yob" style="color:#fff;">1998</strong></div>
+                <div><span style="color:var(--text-muted);">Blood Group:</span> <strong id="card-blood" style="color:var(--danger); font-weight:800;">O+ Positive</strong></div>
+                <div><span style="color:var(--text-muted);">Organ Donor:</span> <strong id="card-organ-donor" style="color:var(--primary);">Yes</strong></div>
+                <div style="grid-column:span 2;"><span style="color:var(--text-muted);">Emergency Contact:</span> <strong id="card-emergency" style="color:var(--warning);">Rajesh Verma (+91 98765 43211)</strong></div>
+              </div>
+
+              <div style="background:rgba(11,15,25,0.7); border-radius:14px; padding:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; border:1px solid var(--border-color);">
+                <div>
+                  <strong style="font-size:0.9rem; display:block; color:#fff; margin-bottom:4px;">Emergency QR Scan</strong>
+                  <p style="font-size:0.8rem; color:var(--text-muted);">Scan with smartphone camera for instant responder access.</p>
+                </div>
+                <div class="qr-code-box" style="flex-shrink:0;"></div>
+              </div>
+            </div>
+
+            <!-- Quick Action Hub -->
+            <div class="glass-card" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <button class="btn btn-secondary" onclick="openPublicProfileView()">
+                🌐 Launch Public Profile
+              </button>
+              <button class="btn btn-secondary" onclick="copyPublicProfileLink()">
+                📋 Copy Shareable Link
+              </button>
+              <button class="btn btn-outline" onclick="printHealthCard()">
+                🖨️ Print Digital Health ID
+              </button>
+              <button class="btn btn-danger" onclick="sendEmergencyAlert()">
+                🚨 Dispatch Emergency SOS
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: SYMPTOM CHECKER WIZARD -->
+  <div id="symptom-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('symptom-modal')">&times;</button>
+      <div id="wizard-container">
+        <!-- Step content injected by script.js -->
       </div>
-    </section>
-  </main>
+    </div>
+  </div>
+
+  <!-- MODAL: HOSPITAL BOOKING -->
+  <div id="booking-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('booking-modal')">&times;</button>
+      <div id="booking-modal-body">
+        <!-- Content injected by script.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="script.js"></script>
 </body>
+
 </html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Public Emergency Health Profile — Mediyogi AI</title>
+  <meta name="description" content="Verified ABDM Emergency Health ID Card and Public Medical Profile for first responders and physicians." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Public Profile Specific Enhancements & Print Styles */
+    .profile-page-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 30px 20px 80px;
+    }
+
+    .emergency-hero-card {
+      background: linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .blood-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f43f5e;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.1rem;
+      padding: 8px 18px;
+      border-radius: 30px;
+      box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
+      letter-spacing: 0.5px;
+    }
+
+    .info-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+    }
+
+    .info-pill label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .info-pill strong {
+      font-size: 1rem;
+      color: #ffffff;
+    }
+
+    /* PRINT STYLESHEET */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      body::before {
+        display: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .profile-page-container {
+        padding: 0;
+        max-width: 100%;
+      }
+      .glass-card, .emergency-hero-card {
+        background: #ffffff !important;
+        border: 2px solid #000000 !important;
+        color: #000000 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+      }
+      .info-pill strong, .info-pill label, h1, h2, h3, h4, p, div {
+        color: #000000 !important;
+      }
+      .blood-badge {
+        background: #000000 !important;
+        color: #ffffff !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION HEADER -->
+  <nav class="landing-nav no-print" style="max-width:1000px; margin:0 auto; padding:20px;">
+    <a href="index.html" class="brand">
+      <div class="brand-icon">🩺</div>
+      <span>Mediyogi <span style="color:var(--primary); font-size:0.8rem; border:1px solid var(--primary); padding:2px 8px; border-radius:12px;">AI Emergency</span></span>
+    </a>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <a href="dashboard.html" class="btn btn-secondary btn-sm">‹ Return to Dashboard</a>
+      <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ Print / Save PDF</button>
+    </div>
+  </nav>
+
+  <main class="profile-page-container">
+
+    <!-- EMERGENCY RESPONDER TOP ALERT -->
+    <div class="no-print" style="background:rgba(244,63,94,0.15); border:1px solid var(--danger); padding:16px 20px; border-radius:var(--radius-md); margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-size:1.6rem;">🚨</span>
+        <div>
+          <strong style="color:#ffffff; font-size:1.05rem;">Verified Public Emergency Health Profile</strong>
+          <p style="color:var(--text-muted); font-size:0.88rem;">Authorized for emergency medical responders, physicians, and paramedics.</p>
+        </div>
+      </div>
+      <span class="badge badge-success" style="font-size:0.85rem;">ABDM ID Verified 🇮🇳</span>
+    </div>
+
+    <!-- MAIN HERO PATIENT EMERGENCY CARD -->
+    <section class="emergency-hero-card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:20px; margin-bottom:24px;">
+        <div style="display:flex; align-items:center; gap:20px;">
+          <div id="pub-avatar" class="avatar" style="width:80px; height:80px; font-size:2.2rem; background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color:#fff; border-radius:24px; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 8px 25px var(--primary-glow); border:2px solid rgba(255,255,255,0.2);">PV</div>
+          <div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+              <h1 id="pub-name" style="font-size:2rem; font-weight:800; color:#ffffff;">Priya Verma</h1>
+              <span id="pub-organ" class="badge badge-info" style="font-size:0.8rem;">🫀 Organ Donor</span>
+            </div>
+            <p style="font-size:1.1rem; font-family:monospace; color:var(--secondary); font-weight:700;">
+              ABDM Health ID: <span id="pub-health-id">ABDM-91-8420-1129-90</span>
+            </p>
+            <div style="font-size:0.88rem; color:var(--text-muted); margin-top:4px;">
+              📍 <span id="pub-city">New Delhi</span>, India • Registered Patient Profile
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+          <div class="blood-badge">
+            <span>🩸</span> <span id="pub-blood">O+ POSITIVE</span>
+          </div>
+          <span style="font-size:0.8rem; color:var(--text-muted);">High Transfusion Priority</span>
+        </div>
+      </div>
+
+      <!-- Quick Emergency Responder Actions -->
+      <div class="no-print" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1);">
+        <a id="pub-call-btn" href="tel:+919876543211" class="btn btn-primary" style="background:var(--danger); border:none; box-shadow:0 4px 15px rgba(244,63,94,0.4);">
+          📞 Call Emergency Contact
+        </a>
+        <button class="btn btn-secondary" onclick="sendEmergencyAlert()">
+          🚨 Dispatch SOS Alert
+        </button>
+        <button class="btn btn-outline" onclick="copyPublicProfileLink()">
+          📋 Share Profile Link
+        </button>
+      </div>
+    </section>
+
+    <!-- CRITICAL MEDICAL INFORMATION GRID -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
+      
+      <!-- Critical Allergies & Conditions Card -->
+      <div class="glass-card" style="border-left:4px solid var(--danger);">
+        <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:16px; color:var(--danger); display:flex; align-items:center; gap:8px;">
+          ⚠️ Critical Medical Alerts & Allergies
+        </h3>
+        
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div class="info-pill" style="border-color:rgba(244,63,94,0.3); background:rgba(244,63,94,0.05);">
+            <label style="color:var(--danger); font-weight:700;">Severe Allergies</label>
+            <strong id="pub-allergies" style="color:#ffffff;">Dust, Penicillin</strong>
+          </div>
+
+          <div class="info-pill">
+            <label>Pre-existing Chronic Conditions</label>
+            <strong id="pub-conditions">Asthma, Mild Hypertension</strong>
+          </div>
+
+          <div class="info-pill">
+            <label>Current Daily Medications</label>
+            <strong id="pub-medications">Albuterol Inhaler (As needed), Amlodipine 5mg</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emergency Contacts & Demographics Card -->
+      <div class="glass-card" style="border-left:4px solid var(--primary);">
+        <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:16px; color:var(--primary); display:flex; align-items:center; gap:8px;">
+          📞 Emergency Contact & Personal Details
+        </h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+          <div class="info-pill">
+            <label>Emergency Contact</label>
+            <strong id="pub-emergency-name">Rajesh Verma (Father)</strong>
+          </div>
+          <div class="info-pill">
+            <label>Emergency Phone</label>
+            <strong id="pub-emergency-phone" style="color:var(--secondary);">+91 98765 43211</strong>
+          </div>
+          <div class="info-pill">
+            <label>Gender / YOB</label>
+            <strong><span id="pub-gender">Female</span> • <span id="pub-yob">1998</span></strong>
+          </div>
+          <div class="info-pill">
+            <label>Primary Phone</label>
+            <strong id="pub-phone">+91 98765 43210</strong>
+          </div>
+        </div>
+
+        <div class="info-pill">
+          <label>Email Address</label>
+          <strong id="pub-email">priya.verma@health.in</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLINICAL DIAGNOSTICS & RECENT VITALS -->
+    <div style="display:grid; grid-template-columns:2fr 1fr; gap:24px; margin-bottom:24px;">
+      
+      <!-- Diagnostic EHR Summary -->
+      <div class="glass-card">
+        <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;">
+          <span>🧪 Diagnostic Biomarkers & Recent Lab Reports</span>
+          <span class="badge badge-info" style="font-weight:normal;">Synced with Smart EHR</span>
+        </h3>
+
+        <div id="pub-reports-list" style="display:flex; flex-direction:column; gap:12px;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Live Vitals Overview & Paramedic QR -->
+      <div style="display:flex; flex-direction:column; gap:24px;">
+        <div class="glass-card">
+          <h4 style="margin-bottom:14px; font-size:1rem; color:var(--text-muted);">💓 Recent Vitals Snapshot</h4>
+          
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; justify-content:space-between; padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:8px;">
+              <span style="color:var(--text-muted);">Blood Pressure:</span>
+              <strong style="color:var(--primary);">120 / 80 mmHg</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:8px;">
+              <span style="color:var(--text-muted);">Heart Rate:</span>
+              <strong style="color:var(--secondary);">72 bpm</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:8px;">
+              <span style="color:var(--text-muted);">Oxygen Saturation:</span>
+              <strong style="color:var(--primary);">99% SpO2</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card" style="text-align:center;">
+          <h4 style="margin-bottom:10px; font-size:0.95rem;">📱 Paramedic Scan Verification</h4>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Official ABDM digital signature QR for hospital check-in.</p>
+          <div class="qr-code-box" style="display:flex; justify-content:center;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER DISCLAIMER -->
+    <footer style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem; border-top:1px solid var(--border-color);">
+      <p>Mediyogi AI Digital Health ID System • Compliant with ABDM & National Health Authority Security Guidelines.</p>
+      <p style="margin-top:4px;">In case of life-threatening emergencies, immediately dial 112 / local emergency services.</p>
+    </footer>
+
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Hydrate Public Profile page with AppState or query parameters
+      const user = AppState.user;
+
+      const setEl = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val !== undefined && val !== null) el.textContent = val;
+      };
+
+      setEl('pub-name', user.name);
+      setEl('pub-health-id', user.healthId);
+      setEl('pub-blood', `${user.bloodGroup} POSITIVE`);
+      setEl('pub-city', user.city || 'New Delhi');
+      setEl('pub-allergies', user.allergies || 'None reported');
+      setEl('pub-conditions', user.conditions || 'None reported');
+      setEl('pub-medications', user.medications || 'None reported');
+      setEl('pub-emergency-name', user.emergencyName || 'Rajesh Verma (Father)');
+      setEl('pub-emergency-phone', user.emergencyPhone || '+91 98765 43211');
+      setEl('pub-gender', user.gender || 'Female');
+      setEl('pub-yob', user.yob || '1998');
+      setEl('pub-phone', user.phone || '+91 98765 43210');
+      setEl('pub-email', user.email || 'priya.verma@health.in');
+      setEl('pub-avatar', user.avatar || 'PV');
+
+      const organEl = document.getElementById('pub-organ');
+      if (organEl) {
+        organEl.textContent = user.organDonor === 'No' ? '🫀 Organ Donor: No' : '🫀 Organ Donor Registered';
+      }
+
+      const callBtn = document.getElementById('pub-call-btn');
+      if (callBtn && user.emergencyPhone) {
+        callBtn.href = `tel:${user.emergencyPhone.replace(/\s+/g, '')}`;
+        callBtn.textContent = `📞 Call ${user.emergencyName || 'Emergency Contact'}`;
+      }
+
+      // Render diagnostic reports summary
+      const reportsContainer = document.getElementById('pub-reports-list');
+      if (reportsContainer && AppState.reports) {
+        reportsContainer.innerHTML = AppState.reports.map(rep => `
+          <div style="background:rgba(15,23,42,0.6); border:1px solid var(--border-color); border-radius:12px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <strong style="color:var(--text-main); font-size:0.95rem;">${rep.title}</strong>
+              <span class="badge badge-info">${rep.date}</span>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+              ${rep.metrics.map(m => `
+                <span style="font-size:0.8rem; background:rgba(255,255,255,0.05); padding:4px 8px; border-radius:6px; border:1px solid var(--border-color);">
+                  ${m.name}: <strong style="color:${m.status === 'elevated' ? 'var(--warning)' : 'var(--primary)'}">${m.value}</strong>
+                </span>
+              `).join('')}
+            </div>
+            <p style="font-size:0.82rem; color:var(--text-muted);">${rep.aiSummary}</p>
+          </div>
+        `).join('');
+      }
+
+      // Render QR code
+      renderProfileQRCodes();
+
+      // Trigger automatic print if print query param is present
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('print') === 'true') {
+        setTimeout(() => {
+          window.print();
+        }, 500);
+      }
+    });
+  </script>
+</body>
+</html>

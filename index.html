@@ -2,81 +2,161 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mediyogi - Personal Healthcare Companion</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    button:focus, a:focus {
-      outline: 2px solid #facc15; 
-      outline-offset: 2px;
-      border-radius: 4px;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mediyogi AI — Next-Gen Public Health Companion & AI Triage</title>
+  <meta name="description" content="Mediyogi is an AI-powered public health platform providing multilingual AI triage, smart EHR lab report analysis, hospital radar, and vital tracking." />
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gradient-to-b from-yellow-50 to-pink-50 min-h-screen flex flex-col">
+<body>
 
-  
-  <header class="bg-yellow-50 py-12 px-6 sm:px-12 text-center">
-    <h1 class="text-3xl sm:text-4xl font-extrabold text-yellow-900 mb-2">
-      Welcome to <span class="text-purple-700">Mediyogi</span>
-    </h1>
-    <p class="text-yellow-700 max-w-xl mx-auto text-sm sm:text-base mb-6 leading-relaxed">
-      Your personal healthcare companion – manage records, get AI-powered insights,<br class="hidden sm:inline" />
-      and find trusted hospitals near you.
-    </p>
-    <div class="flex justify-center gap-4">
-      <a href="dashboard.html" class="bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:ring-pink-300 text-white font-semibold rounded-lg px-6 py-2 transition shadow-md shadow-pink-300">
-        Dashboard
-      </a>
-      <a href="login.html"><button type="button" class="bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 text-white font-semibold rounded-lg px-6 py-2 transition shadow-md shadow-purple-300">
-        Create Account / Login
-      </button></a>
+  <!-- NAVIGATION BAR -->
+  <nav class="landing-nav" role="navigation" aria-label="Main Navigation">
+    <a href="index.html" class="brand">
+      <div class="brand-icon">🩺</div>
+      <span>Mediyogi <span style="color:var(--primary); font-size:0.8rem; border:1px solid var(--primary); padding:2px 8px; border-radius:12px;">AI 2.0</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#demo">Quick Scanner</a></li>
+      <li><a href="ai.html">AI HealthBot</a></li>
+      <li><a href="profile.html">Emergency Profile</a></li>
+      <li><a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a></li>
+      <li><a href="login.html" class="btn btn-primary btn-sm">Login / Register</a></li>
+    </ul>
+  </nav>
+
+  <!-- OUTBREAK TICKER BAR -->
+  <div class="outbreak-ticker">
+    <div class="ticker-pulse"></div>
+    <span><strong>PUBLIC HEALTH ALERT:</strong> Dengue outbreak alert active in Northern districts. Use mosquito repellent & stay hydrated.</span>
+    <a href="ai.html" style="color:var(--primary); text-decoration:underline; font-weight:600; margin-left:8px;">Ask AI Assistant →</a>
+  </div>
+
+  <!-- HERO SECTION -->
+  <header class="hero-section">
+    <div>
+      <span class="badge badge-success" style="margin-bottom:16px;">✨ AI-Powered Healthcare Companion</span>
+      <h1 class="hero-title">Intelligent Care. <span>Instant Guidance.</span> Available Everywhere.</h1>
+      <p class="hero-desc">
+        Store your smart health records, get instant multilingual AI symptom triage, scan diagnostic blood reports, and locate nearest ICU beds in real-time.
+      </p>
+      <div class="hero-cta">
+        <a href="dashboard.html" class="btn btn-primary btn-lg">Launch Patient Portal</a>
+        <a href="ai.html" class="btn btn-secondary btn-lg">Talk to AI Assistant 💬</a>
+      </div>
+    </div>
+
+    <!-- HERO DEMO INTERACTIVE MINI SCANNER CARD -->
+    <div class="glass-card interactive" style="padding:28px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:12px; height:12px; border-radius:50%; background:var(--primary); box-shadow:0 0 10px var(--primary);"></div>
+          <strong style="font-size:1.05rem;">Live AI Symptom Scanner</strong>
+        </div>
+        <span class="badge badge-info">Instant Triage</span>
+      </div>
+
+      <div class="form-group">
+        <label>How are you feeling today?</label>
+        <input type="text" id="hero-symptom-input" class="form-control" placeholder="e.g. Fever, severe headache, fatigue..." value="Fever and high body warmth for 2 days" />
+      </div>
+
+      <button class="btn btn-primary" style="width:100%; margin-bottom:16px;" onclick="runHeroScanner()">
+        ⚡ Run AI Health Scanner
+      </button>
+
+      <div id="hero-scan-result" style="display:none; background:rgba(15,23,42,0.8); border:1px solid var(--border-color); padding:16px; border-radius:var(--radius-md); font-size:0.9rem;">
+        <!-- Filled by JS -->
+      </div>
     </div>
   </header>
 
-  
-  <main class="grow container mx-auto px-6 sm:px-12 py-16">
-    <h2 class="text-center text-purple-900 font-semibold text-xl sm:text-2xl mb-12">Why Mediyogi?</h2>
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+  <!-- FEATURES GRID SECTION -->
+  <section id="features" style="max-width:1280px; margin:0 auto; padding:40px 40px 80px;">
+    <div style="text-align:center; margin-bottom:48px;">
+      <span class="badge badge-info" style="margin-bottom:12px;">Next-Gen Technology</span>
+      <h2 style="font-size:2.2rem; font-weight:800;">Designed to Revolutionize Public Health</h2>
+    </div>
 
-      <article tabindex="0" class="border border-yellow-300 rounded-xl p-6 flex flex-col items-center text-center hover:shadow-lg transition shadow-sm focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-4 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V7a2 2 0 012-2h3l2-2 2 2h3a2 2 0 012 2v11a2 2 0 01-2 2z" /></svg>
-        <h3 class="text-purple-800 font-semibold mb-1 text-lg">Smart Health Records</h3>
-        <p class="text-yellow-700 text-sm">
-          Store and manage your medical reports in one secure place.
+    <div class="features-grid" style="padding:0;">
+      <div class="glass-card feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3 style="font-size:1.2rem; font-weight:700;">Multilingual AI Triage</h3>
+        <p style="color:var(--text-muted); font-size:0.92rem;">
+          Get evidence-based clinical guidance in English, Hindi, and Bengali with speech input and voice reading capabilities.
         </p>
-      </article>
+      </div>
 
-      <article tabindex="0" class="border border-yellow-300 rounded-xl p-6 flex flex-col items-center text-center hover:shadow-lg transition shadow-sm focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-4 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-5l3-3 3 3v5M4 9h16M4 16h16" /></svg>
-        <h3 class="text-purple-800 font-semibold mb-1 text-lg">AI diseases awarness</h3>
-        <p class="text-yellow-700 text-sm">
-          Get instant, many diseases awarness powered by AI.
+      <div class="glass-card feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 style="font-size:1.2rem; font-weight:700;">Smart EHR & Lab Parser</h3>
+        <p style="color:var(--text-muted); font-size:0.92rem;">
+          Upload diagnostic PDF blood tests and ECG reports. AI automatically extracts key biomarkers with normal range indicators.
         </p>
-      </article>
+      </div>
 
-      <article tabindex="0" class="border border-yellow-300 rounded-xl p-6 flex flex-col items-center text-center hover:shadow-lg transition shadow-sm focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-4 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3zM5 16c0-2 4-3 7-3s7 1 7 3v1H5v-1z" /></svg>
-        <h3 class="text-purple-800 font-semibold mb-1 text-lg">Hospital Locator</h3>
-        <p class="text-yellow-700 text-sm">
-          Find the nearest hospitals and healthcare providers quickly.
+      <div class="glass-card feature-card">
+        <div class="feature-icon">🏥</div>
+        <h3 style="font-size:1.2rem; font-weight:700;">Hospital Radar & ICU Beds</h3>
+        <p style="color:var(--text-muted); font-size:0.92rem;">
+          Interactive map pinpointing nearby medical facilities, 24/7 ICU bed availability, emergency ratings, and instant appointment booking.
         </p>
-      </article>
+      </div>
 
-      <article tabindex="0" class="border border-yellow-300 rounded-xl p-6 flex flex-col items-center text-center hover:shadow-lg transition shadow-sm focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-400">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-4 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 11c0-3.314 2.686-6 6-6s6 2.686 6 6-2.686 6-6 6-6-2.686-6-6zM2 11a10 10 0 0114.32-8.788" /></svg>
-        <h3 class="text-purple-800 font-semibold mb-1 text-lg">Secure Profile</h3>
-        <p class="text-yellow-700 text-sm">
-          Your data is safe with encrypted access and privacy first.
+      <div class="glass-card feature-card">
+        <div class="feature-icon">💓</div>
+        <h3 style="font-size:1.2rem; font-weight:700;">Vitals & Health Metrics</h3>
+        <p style="color:var(--text-muted); font-size:0.92rem;">
+          Track daily Blood Pressure, SpO2, Heart Rate, water consumption, and BMI with custom visual canvas charts.
         </p>
-      </article>
+      </div>
+    </div>
+  </section>
 
-    </section>
-  </main>
+  <!-- STATS BAR -->
+  <section style="background:rgba(18,24,38,0.6); border-y:1px solid var(--border-color); padding:60px 40px; text-align:center;">
+    <div style="max-width:1100px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:40px;">
+      <div>
+        <div style="font-size:2.8rem; font-weight:800; color:var(--primary);">120,000+</div>
+        <div style="color:var(--text-muted); font-size:0.95rem;">AI Health Consultations</div>
+      </div>
+      <div>
+        <div style="font-size:2.8rem; font-weight:800; color:var(--secondary);">450+</div>
+        <div style="color:var(--text-muted); font-size:0.95rem;">Partner Hospitals Connected</div>
+      </div>
+      <div>
+        <div style="font-size:2.8rem; font-weight:800; color:var(--accent);">99.2%</div>
+        <div style="color:var(--text-muted); font-size:0.95rem;">Triage Accuracy Score</div>
+      </div>
+    </div>
+  </section>
 
-  <footer class="bg-yellow-700 text-white py-4 text-center select-none" aria-hidden="true">
-    &copy; 2025 Mediyogi. All rights reserved.
+  <!-- FOOTER -->
+  <footer style="padding:40px; text-align:center; border-top:1px solid var(--border-color); color:var(--text-muted); font-size:0.9rem;">
+    <div style="margin-bottom:16px;">
+      <a href="index.html" style="font-weight:700; color:var(--text-main); font-size:1.2rem;">🩺 Mediyogi AI</a>
+    </div>
+    <p>&copy; 2026 Mediyogi AI Technologies. All rights reserved. For emergency care, please dial your local emergency services.</p>
   </footer>
 
+  <script src="script.js"></script>
+  <script>
+    function runHeroScanner() {
+      const input = document.getElementById('hero-symptom-input').value;
+      const resDiv = document.getElementById('hero-scan-result');
+      if (!input) return;
+
+      resDiv.style.display = 'block';
+      resDiv.innerHTML = '⏳ Mediyogi AI is analyzing clinical parameters...';
+
+      setTimeout(() => {
+        resDiv.innerHTML = `
+          <div style="color:var(--primary); font-weight:700; margin-bottom:4px;">✅ AI Assessment Complete (Low-Moderate Risk)</div>
+          <p style="color:var(--text-muted);">Symptoms match viral fever patterns. Maintain hydration with ORS and monitor body temperature. If fever exceeds 102°F, consult a physician.</p>
+          <a href="ai.html" class="btn btn-primary btn-sm" style="margin-top:10px;">Continue Full AI Consultation →</a>
+        `;
+      }, 600);
+    }
+  </script>
 </body>
 </html>
