@@ -26,6 +26,7 @@
       <div style="display:flex; gap:10px; align-items:center;">
         <a href="dashboard.html" class="btn btn-secondary btn-sm">← Back to Patient Dashboard</a>
         <a href="profile.html" class="btn btn-secondary btn-sm">👤 Emergency Profile</a>
+        <button type="button" class="btn btn-danger btn-sm" onclick="logoutUser()">🔴 Logout</button>
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
         <span class="badge badge-danger">🔥 Outbreak Alert: Dengue</span>
@@ -49,7 +50,10 @@
             <p style="font-size:0.8rem; color:var(--text-muted);">Preventive Triage & Outbreak Advisory Engine</p>
           </div>
         </div>
-        <span class="badge badge-success">Online & Listening</span>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button type="button" class="btn btn-secondary btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Set Gemini Key</button>
+          <span class="badge badge-secondary gemini-status-badge">📖 Offline Clinical Mode</span>
+        </div>
       </div>
 
       <div id="chat-messages" class="chat-box">

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,56 +8,94 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="login.css" />
 </head>
+
 <body>
 
   <div class="login-wrapper">
-    <a href="index.html" class="btn btn-secondary btn-sm" style="position:absolute; top:24px; left:24px;">← Back to Home</a>
+    <a href="index.html" class="btn btn-secondary btn-sm" style="position:absolute; top:24px; left:24px;">← Back to
+      Home</a>
 
     <div class="glass-card login-card">
-      <div class="brand" style="justify-content:center; margin-bottom:24px;">
+      <div class="brand" style="justify-content:center; margin-bottom:20px;">
         <div class="brand-icon">🩺</div>
         <span>Mediyogi AI</span>
       </div>
 
+      <!-- ALERT MESSAGE BOX -->
+      <div id="auth-alert" class="auth-alert" style="display:none;"></div>
+
       <!-- TOGGLE TABS -->
       <div class="auth-tabs">
-        <button id="tab-login-btn" class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
-        <button id="tab-reg-btn" class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+        <button id="tab-login-btn" class="auth-tab active" type="button" onclick="switchAuthTab('login')">Login</button>
+        <button id="tab-reg-btn" class="auth-tab" type="button" onclick="switchAuthTab('register')">Register</button>
       </div>
 
       <!-- LOGIN FORM -->
       <form id="login-form" class="auth-form active" onsubmit="handleLoginSubmit(event)">
         <div class="form-group">
-          <label>Email or Username</label>
-          <input type="text" id="login-user" class="form-control" placeholder="priya.verma@health.in" value="priya.verma@health.in" required />
+          <label for="login-user">Email or Username</label>
+          <input type="text" id="login-user" class="form-control" placeholder="e.g. priya.verma@health.in" required
+            autocomplete="username" />
         </div>
         <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="login-pass" class="form-control" placeholder="••••••••" value="password123" required />
+          <label for="login-pass">Password</label>
+          <div class="password-input-wrap">
+            <input type="password" id="login-pass" class="form-control" placeholder="••••••••" required
+              autocomplete="current-password" />
+            <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('login-pass', this)"
+              title="Toggle password visibility">👁️</button>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px;">Sign In</button>
-        <button type="button" class="btn btn-secondary" style="width:100%; margin-top:8px;" onclick="handleGuestLogin()">⚡ Instant Demo Guest Login</button>
+        <button type="button" class="btn btn-secondary" style="width:100%; margin-top:8px;"
+          onclick="handleGuestLogin()">⚡ Instant Demo Guest Login</button>
       </form>
 
       <!-- REGISTER FORM -->
       <form id="register-form" class="auth-form" onsubmit="handleRegisterSubmit(event)">
         <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="reg-name" class="form-control" placeholder="Priya Verma" required />
+          <label for="reg-name">Full Name</label>
+          <input type="text" id="reg-name" class="form-control" placeholder="e.g. Priya Verma" required
+            autocomplete="name" />
         </div>
         <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="reg-email" class="form-control" placeholder="name@example.com" required />
+          <label for="reg-email">Email Address</label>
+          <input type="email" id="reg-email" class="form-control" placeholder="name@example.com" required
+            autocomplete="email" />
         </div>
         <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="reg-pass" class="form-control" placeholder="••••••••" required />
+          <label for="reg-pass">Password (Min 6 characters)</label>
+          <div class="password-input-wrap">
+            <input type="password" id="reg-pass" class="form-control" placeholder="••••••••" required minlength="6"
+              autocomplete="new-password" />
+            <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('reg-pass', this)"
+              title="Toggle password visibility">👁️</button>
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px;">Create Account</button>
+        <div class="form-group">
+          <label for="reg-city">City / Region (Optional)</label>
+          <select id="reg-city" class="form-control" required>
+            <option value="">Select your city</option>
+            <option value="New Delhi" selected>New Delhi</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Bangalore">Bangalore</option>
+            <option value="Kolkata">Kolkata</option>
+            <option value="Chennai">Chennai</option>
+            <option value="Hyderabad">Hyderabad</option>
+            <option value="Pune">Pune</option>
+            <option value="Ahmedabad">Ahmedabad</option>
+            <option value="Surat">Surat</option>
+            <option value="Visakhapatnam">Visakhapatnam</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px;">Create Account & Sign
+          In</button>
       </form>
     </div>
   </div>
 
   <script src="login.js"></script>
 </body>
+
 </html>

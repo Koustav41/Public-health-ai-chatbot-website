@@ -2,9 +2,43 @@
  * Mediyogi Public Health AI Platform - Core Application Logic
  */
 
+// Auth Guard & Session Management
+function getActiveUserSession() {
+  const sessionStr = localStorage.getItem('mediyogi_user');
+  if (!sessionStr) return null;
+  try {
+    return JSON.parse(sessionStr);
+  } catch (e) {
+    return null;
+  }
+}
+
+function checkAuthGuard() {
+  const activeUser = getActiveUserSession();
+  const currentPath = window.location.pathname.toLowerCase();
+
+  // Protected routes check
+  const isProtectedPage = currentPath.includes('dashboard.html') ||
+    currentPath.includes('ai.html') ||
+    currentPath.includes('profile.html');
+
+  if (isProtectedPage && !activeUser) {
+    const pageName = currentPath.substring(currentPath.lastIndexOf('/') + 1) || 'dashboard.html';
+    window.location.href = `login.html?redirect=${encodeURIComponent(pageName)}&msg=login_required`;
+    return null;
+  }
+
+  return activeUser;
+}
+
+function logoutUser() {
+  localStorage.removeItem('mediyogi_user');
+  window.location.href = 'login.html';
+}
+
 // Global State Initializer
 const AppState = {
-  user: JSON.parse(localStorage.getItem('mediyogi_user')) || {
+  user: getActiveUserSession() || {
     name: 'Priya Verma',
     email: 'priya.verma@health.in',
     phone: '+91 98765 43210',
@@ -125,6 +159,11 @@ function showSection(sectionId) {
 }
 
 function initUIState() {
+  const activeUser = checkAuthGuard();
+  if (activeUser) {
+    AppState.user = Object.assign({}, AppState.user, activeUser);
+  }
+
   // Populate User Display Names
   const userNames = document.querySelectorAll('.user-disp-name');
   userNames.forEach(el => el.textContent = AppState.user.name);
@@ -132,11 +171,42 @@ function initUIState() {
   const healthIdEls = document.querySelectorAll('.user-health-id');
   healthIdEls.forEach(el => el.textContent = AppState.user.healthId);
 
+  const emailEls = document.querySelectorAll('.user-disp-email');
+  emailEls.forEach(el => el.textContent = AppState.user.email);
+
+  const cityEls = document.querySelectorAll('.user-disp-city');
+  cityEls.forEach(el => el.textContent = AppState.user.city || 'New Delhi');
+
   // Avatar Initials
   const avatars = document.querySelectorAll('.avatar');
   avatars.forEach(el => {
     if (AppState.user.avatar) el.textContent = AppState.user.avatar;
   });
+
+  // Attach Logout Handlers
+  const logoutBtns = document.querySelectorAll('[data-action="logout"], .btn-logout');
+  logoutBtns.forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      logoutUser();
+    };
+  });
+
+  // Update Landing Page Navigation based on Auth State
+  const navAuthBtn = document.getElementById('nav-auth-btn');
+  if (navAuthBtn) {
+    if (activeUser) {
+      navAuthBtn.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="avatar" style="width:28px; height:28px; font-size:0.75rem; display:inline-flex; align-items:center; justify-content:center; background:var(--primary); color:white; border-radius:50%; font-weight:700;">${activeUser.avatar || 'PV'}</span>
+          <a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a>
+          <button type="button" class="btn btn-danger btn-sm" onclick="logoutUser()">Logout</button>
+        </div>
+      `;
+    } else {
+      navAuthBtn.innerHTML = `<a href="login.html" class="btn btn-primary btn-sm">Login / Register</a>`;
+    }
+  }
 
   // Set initial navigation triggers
   const links = document.querySelectorAll('.sidebar-link');
@@ -163,6 +233,17 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 }
 
 function initChatEngine() {
+  ensureGeminiModalExists();
+  updateGeminiUIBadge();
+
+  const keyBtns = document.querySelectorAll('.btn-gemini-key');
+  keyBtns.forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      openGeminiModal();
+    };
+  });
+
   const langSelect = document.getElementById('chat-lang-select');
   if (langSelect) {
     langSelect.addEventListener('change', (e) => {
@@ -200,7 +281,272 @@ function initChatEngine() {
   }
 }
 
-function sendChatMessage(textOverride) {
+/* ==========================================================================
+   GEMINI API INTEGRATION & KEY MANAGEMENT
+   ========================================================================== */
+function getGeminiApiKey() {
+  return localStorage.getItem('mediyogi_gemini_api_key') || AppState.geminiApiKey || '';
+}
+
+function setGeminiApiKey(key) {
+  const cleanKey = (key || '').trim();
+  if (cleanKey) {
+    localStorage.setItem('mediyogi_gemini_api_key', cleanKey);
+    AppState.geminiApiKey = cleanKey;
+  } else {
+    localStorage.removeItem('mediyogi_gemini_api_key');
+    AppState.geminiApiKey = '';
+  }
+  updateGeminiUIBadge();
+}
+
+function updateGeminiUIBadge() {
+  const key = getGeminiApiKey();
+  const badges = document.querySelectorAll('.gemini-status-badge');
+  badges.forEach(badge => {
+    if (key) {
+      badge.className = 'badge badge-success gemini-status-badge';
+      badge.innerHTML = '✨ Gemini AI Active';
+    } else {
+      badge.className = 'badge badge-secondary gemini-status-badge';
+      badge.innerHTML = '📖 Offline Clinical Mode';
+    }
+  });
+
+  const keyBtns = document.querySelectorAll('.btn-gemini-key');
+  keyBtns.forEach(btn => {
+    if (key) {
+      btn.innerHTML = '🔑 Key Configured ✓';
+      btn.classList.remove('btn-secondary');
+      btn.classList.add('btn-success');
+    } else {
+      btn.innerHTML = '🔑 Set Gemini Key';
+      btn.classList.remove('btn-success');
+      btn.classList.add('btn-secondary');
+    }
+  });
+}
+
+function ensureGeminiModalExists() {
+  if (document.getElementById('gemini-modal')) return;
+
+  const modalHtml = `
+    <div id="gemini-modal" class="modal-overlay">
+      <div class="modal-content" style="max-width: 520px;">
+        <button class="modal-close" onclick="closeModal('gemini-modal')">&times;</button>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="font-size:2rem; line-height:1;">✨</div>
+          <div>
+            <h3 style="font-size:1.2rem; font-weight:700; margin:0;">Google Gemini API Settings</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">Power your assistant with live generative clinical intelligence</p>
+          </div>
+        </div>
+
+        <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); padding:14px; border-radius:8px; margin-bottom:18px; font-size:0.85rem; line-height:1.5;">
+          🔑 <strong>Get your API key:</strong> Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:#60a5fa; text-decoration:underline;">Google AI Studio</a> to generate a free Gemini API key.<br>
+          <span style="opacity:0.8; font-size:0.8rem;">Your key is stored securely in browser <code>localStorage</code> and used directly for Google Gemini requests.</span>
+        </div>
+
+        <div class="form-group" style="margin-bottom:16px;">
+          <label for="gemini-api-key-input" style="display:block; font-weight:600; margin-bottom:6px; font-size:0.85rem;">Gemini API Key:</label>
+          <div style="position:relative; display:flex; align-items:center;">
+            <input type="password" id="gemini-api-key-input" class="form-control" placeholder="AIzaSy..." style="padding-right:70px;" />
+            <button type="button" id="toggle-key-vis-btn" class="btn btn-secondary btn-sm" style="position:absolute; right:6px; font-size:0.75rem; padding:4px 8px;" onclick="toggleGeminiKeyVisibility()">Show</button>
+          </div>
+        </div>
+
+        <div id="gemini-modal-status" style="font-size:0.85rem; margin-bottom:16px; padding:8px 12px; border-radius:6px; display:none;"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+          <button type="button" class="btn btn-danger btn-sm" onclick="clearGeminiKeyFromModal()">Clear Key</button>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="testGeminiKeyFromModal()">🧪 Test Connection</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="saveGeminiKeyFromModal()">Save Key</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function openGeminiModal() {
+  ensureGeminiModalExists();
+  const input = document.getElementById('gemini-api-key-input');
+  if (input) {
+    input.value = getGeminiApiKey();
+  }
+  const statusDiv = document.getElementById('gemini-modal-status');
+  if (statusDiv) statusDiv.style.display = 'none';
+  openModal('gemini-modal');
+}
+
+function toggleGeminiKeyVisibility() {
+  const input = document.getElementById('gemini-api-key-input');
+  const btn = document.getElementById('toggle-key-vis-btn');
+  if (input && btn) {
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = 'Hide';
+    } else {
+      input.type = 'password';
+      btn.textContent = 'Show';
+    }
+  }
+}
+
+function saveGeminiKeyFromModal() {
+  const input = document.getElementById('gemini-api-key-input');
+  const key = input ? input.value.trim() : '';
+  if (!key) {
+    showGeminiModalStatus('Please enter a valid Gemini API Key.', 'error');
+    return;
+  }
+  setGeminiApiKey(key);
+  showGeminiModalStatus('✅ Gemini API Key saved successfully!', 'success');
+  setTimeout(() => closeModal('gemini-modal'), 1200);
+}
+
+function clearGeminiKeyFromModal() {
+  setGeminiApiKey('');
+  const input = document.getElementById('gemini-api-key-input');
+  if (input) input.value = '';
+  showGeminiModalStatus('Key removed. Assistant set to offline mode.', 'info');
+}
+
+async function testGeminiKeyFromModal() {
+  const input = document.getElementById('gemini-api-key-input');
+  const tempKey = input ? input.value.trim() : '';
+  if (!tempKey) {
+    showGeminiModalStatus('Please enter an API Key to test.', 'error');
+    return;
+  }
+
+  showGeminiModalStatus('⏳ Testing connection with Google Gemini API...', 'info');
+
+  try {
+    const response = await fetchGeminiResponse('Hello, test connection.', AppState.currentLang || 'en', tempKey);
+    if (response) {
+      showGeminiModalStatus('✅ Gemini API Connection Successful! API Key is valid.', 'success');
+    }
+  } catch (err) {
+    showGeminiModalStatus(`❌ Test Failed: ${escapeHtml(err.message || 'Unknown error')}`, 'error');
+  }
+}
+
+function showGeminiModalStatus(msg, type) {
+  const statusDiv = document.getElementById('gemini-modal-status');
+  if (!statusDiv) return;
+  statusDiv.style.display = 'block';
+  statusDiv.innerHTML = msg;
+  if (type === 'success') {
+    statusDiv.style.background = 'rgba(34, 197, 94, 0.15)';
+    statusDiv.style.color = '#4ade80';
+    statusDiv.style.border = '1px solid rgba(34, 197, 94, 0.3)';
+  } else if (type === 'error') {
+    statusDiv.style.background = 'rgba(239, 68, 68, 0.15)';
+    statusDiv.style.color = '#f87171';
+    statusDiv.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+  } else {
+    statusDiv.style.background = 'rgba(59, 130, 246, 0.15)';
+    statusDiv.style.color = '#60a5fa';
+    statusDiv.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+  }
+}
+
+async function fetchGeminiResponse(userQuery, lang = 'en', overrideKey = null) {
+  const apiKey = overrideKey || getGeminiApiKey();
+  if (!apiKey) {
+    throw new Error('No Gemini API Key provided. Click "🔑 Set Gemini Key" to configure your API key.');
+  }
+
+  const systemInstructionText = `You are Mediyogi AI, an empathetic, expert public health and clinical AI chatbot assistant.
+Provide clear, accurate, evidence-based preventive health, triage advice, and medical guidance.
+Format your responses clearly using HTML formatting tags like <b>, <ul>, <li>, <br> for maximum readability.
+Keep your response concise, empathetic, and actionable.
+Important: Always advise consulting a qualified doctor or emergency services for severe or persistent symptoms.
+Respond in the language matching: ${lang === 'hi' ? 'Hindi (हिन्दी)' : lang === 'bn' ? 'Bengali (বাংলা)' : 'English'}.`;
+
+  const requestBody = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: `${systemInstructionText}\n\nUser Question: ${userQuery}` }]
+      }
+    ],
+    systemInstruction: {
+      parts: [{ text: systemInstructionText }]
+    }
+  };
+
+  const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3-pro', 'gemini-flash-latest', 'gemini-pro-latest'];
+  let lastErr = null;
+
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey.trim())}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        const msg = errJson.error?.message || `HTTP ${res.status} ${res.statusText}`;
+        throw new Error(msg);
+      }
+
+      const data = await res.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) {
+        return text;
+      } else {
+        throw new Error('Empty response payload from Gemini API.');
+      }
+    } catch (err) {
+      console.warn(`Gemini model ${model} failed:`, err);
+      lastErr = err;
+      if (err.message && (err.message.includes('API key') || err.message.includes('PERMISSION_DENIED') || err.message.includes('403'))) {
+        break;
+      }
+    }
+  }
+
+  throw lastErr || new Error('Gemini API call failed.');
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatChatMessageText(text) {
+  if (!text) return '';
+  if (/<[a-z][\s\S]*>/i.test(text)) {
+    return text;
+  }
+  let formatted = escapeHtml(text)
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+  return formatted;
+}
+
+function stripHtmlTags(html) {
+  if (!html) return '';
+  const tmp = document.createElement('DIV');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+}
+
+async function sendChatMessage(textOverride) {
   const input = document.getElementById('chat-input');
   const query = textOverride || (input ? input.value.trim() : '');
   if (!query) return;
@@ -208,26 +554,50 @@ function sendChatMessage(textOverride) {
   addChatMessage('user', query);
   if (input) input.value = '';
 
-  // Simulate AI Thinking
   showTypingIndicator();
 
+  const apiKey = getGeminiApiKey();
+
+  if (apiKey) {
+    try {
+      const geminiReply = await fetchGeminiResponse(query, AppState.currentLang);
+      removeTypingIndicator();
+      const replyWithBadge = `<div style="margin-bottom:6px;"><span class="badge badge-success" style="font-size:0.7rem; padding:2px 6px;">✨ Gemini AI</span></div>${formatChatMessageText(geminiReply)}`;
+      addChatMessage('bot', replyWithBadge);
+      speakResponse(stripHtmlTags(geminiReply));
+      return;
+    } catch (err) {
+      console.warn('Gemini API request failed, falling back to local clinical knowledge base:', err);
+      removeTypingIndicator();
+      const fallbackReply = generateAIResponse(query);
+      const errHeader = `<div style="font-size:0.75rem; color:#f87171; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); padding:4px 8px; border-radius:4px; margin-bottom:8px;">⚠️ Gemini API Error (${escapeHtml(err.message || 'Call failed')}). Using offline clinical database:</div>`;
+      addChatMessage('bot', errHeader + formatChatMessageText(fallbackReply));
+      speakResponse(stripHtmlTags(fallbackReply));
+      return;
+    }
+  }
+
+  // Fallback mode without API Key
   setTimeout(() => {
     removeTypingIndicator();
     const botReply = generateAIResponse(query);
-    addChatMessage('bot', botReply);
-    speakResponse(botReply);
-  }, 700);
+    const tipNote = `<div style="font-size:0.75rem; opacity:0.85; margin-top:8px; border-top:1px dashed rgba(255,255,255,0.15); padding-top:6px; color:var(--text-muted);">💡 <i>Tip: Click '🔑 Set Gemini Key' to activate live Google Gemini responses.</i></div>`;
+    addChatMessage('bot', formatChatMessageText(botReply) + tipNote);
+    speakResponse(stripHtmlTags(botReply));
+  }, 500);
 }
 
 function generateAIResponse(text) {
   const lower = text.toLowerCase();
   const dict = AI_KNOWLEDGE[AppState.currentLang] || AI_KNOWLEDGE.en;
+  // Check comprehensive Clinical Symptoms Dictionary first
+  const symMatch = findSymptomInDictionary(text);
+  if (symMatch) {
+    return formatSymptomClinicalSummary(symMatch);
+  }
 
-  if (lower.includes('fever') || lower.includes('बुखार') || lower.includes('জ্বর')) return dict.fever;
-  if (lower.includes('dengue') || lower.includes('डेंगू') || lower.includes('डेगू')) return dict.dengue;
   if (lower.includes('vaccine') || lower.includes('टीका') || lower.includes('ভ্যাকসিন')) return dict.vaccine;
-  if (lower.includes('headache') || lower.includes('pain')) return "For headaches: Ensure hydration and reduce screen glare. If accompanied by sudden blurred vision or stiffness in neck, seek medical attention.";
-  
+
   return dict.default;
 }
 
@@ -284,6 +654,314 @@ const SYMPTOM_WIZARD_STEPS = [
   { id: 'fatigue', question: 'Do you have severe muscle pain or extreme fatigue?', options: ['No', 'Moderate', 'Severe'] }
 ];
 
+const SYMPTOMS_DICTIONARY = {
+  fever: {
+    title: "Fever & High Body Temperature",
+    icon: "🤒",
+    keywords: ["fever", "feverish", "febrile", "high temperature", "chills", "बुखार", "জ্বর"],
+    severityLevels: {
+      high: "102°F or higher",
+      medium: "101°F - 102°F",
+      low: "100°F - 101°F"
+    },
+    commonCauses: ["Viral infections (Flu, Dengue, COVID-19)", "Bacterial infections (Typhoid, UTI)", "Inflammatory conditions"],
+    redFlags: [
+      "Fever lasting more than 3 days",
+      "Fever with stiff neck or severe light sensitivity",
+      "Fever with difficulty breathing or chest pain",
+      "Fever with confusion or extreme lethargy"
+    ],
+    whenToSeeDoctor: [
+      "Fever lasts for more than 3 days",
+      "Fever exceeds 103°F (39.4°C)",
+      "Accompanied by persistent vomiting or severe rash"
+    ],
+    treatmentOptions: [
+      "Rest and avoid physical overexertion",
+      "Stay hydrated with ORS, coconut water, and clean fluids",
+      "Over-the-counter fever reducers (Paracetamol/Acetaminophen)",
+      "Apply cool damp cloth compress on forehead"
+    ],
+    prevention: [
+      "Wash hands frequently with soap",
+      "Avoid close contact with sick individuals",
+      "Keep routine vaccinations up to date"
+    ]
+  },
+  cough: {
+    title: "Cough & Respiratory Congestion",
+    icon: "😷",
+    keywords: ["cough", "coughing", "cold", "sore throat", "phlegm", "खांसी", "কাশি"],
+    severityLevels: {
+      high: "Cough with blood or severe breathlessness",
+      medium: "Persistent cough for more than 1 week",
+      low: "Mild dry tickle or seasonal irritation"
+    },
+    commonCauses: ["Viral respiratory infection", "Bronchitis", "Asthma or environmental allergies"],
+    redFlags: [
+      "Coughing up blood or rust-colored phlegm",
+      "Sharp pain when breathing in",
+      "Unexplained weight loss or night sweats"
+    ],
+    whenToSeeDoctor: [
+      "Cough persists for more than 2-3 weeks",
+      "Accompanied by high fever or thick green mucus",
+      "Causes difficulty breathing or wheezing"
+    ],
+    treatmentOptions: [
+      "Warm saltwater gargles 3-4 times daily",
+      "Steam inhalation with warm water",
+      "Honey and ginger tea",
+      "Stay well hydrated with warm liquids"
+    ],
+    prevention: [
+      "Wear a protective mask in polluted or crowded areas",
+      "Avoid exposure to tobacco smoke",
+      "Use indoor air humidifiers or purifiers"
+    ]
+  },
+  headache: {
+    title: "Headache & Migraine",
+    icon: "🤕",
+    keywords: ["headache", "migraine", "head pain", "throbbing head", "सिरदर्द", "মাথাব্যথা"],
+    severityLevels: {
+      high: "Sudden thunderclap headache or with slurred speech",
+      medium: "Throbbing migraine affecting daily tasks",
+      low: "Mild tension headache from fatigue"
+    },
+    commonCauses: ["Stress & eye strain", "Dehydration", "Migraine", "Sinus congestion"],
+    redFlags: [
+      "Sudden, explosive 'thunderclap' headache",
+      "Headache with stiff neck, fever, or confusion",
+      "Headache following head trauma"
+    ],
+    whenToSeeDoctor: [
+      "Headache worsens progressively over days",
+      "Accompanied by vision changes, numbness, or weakness",
+      "Requires daily pain relief medication"
+    ],
+    treatmentOptions: [
+      "Rest in a quiet, dark, well-ventilated room",
+      "Drink 1-2 large glasses of water immediately",
+      "Apply cold compress on forehead",
+      "Gentle temple massage"
+    ],
+    prevention: [
+      "Maintain regular sleep-wake schedule",
+      "Take frequent screen breaks (20-20-20 rule)",
+      "Stay consistently hydrated"
+    ]
+  },
+  dengue: {
+    title: "Dengue & Vector-Borne Fever",
+    icon: "🦟",
+    keywords: ["dengue", "mosquito", "platelet", "joint pain", "bone fever", "डेंगू", "ডেঙ্গু"],
+    severityLevels: {
+      high: "Dengue Hemorrhagic Fever (bleeding, sudden drop in platelets)",
+      medium: "High fever with severe eye pain & body aches",
+      low: "Mild fever during active mosquito outbreak"
+    },
+    commonCauses: ["Aedes mosquito bite transmitting Dengue virus"],
+    redFlags: [
+      "Severe abdominal pain or persistent vomiting",
+      "Bleeding gums, nosebleeds, or skin red spots",
+      "Extreme fatigue, drowsiness, or difficulty breathing"
+    ],
+    whenToSeeDoctor: [
+      "Get a complete blood count (CBC) test if fever occurs in Dengue zone",
+      "Monitor platelet count daily if diagnosed with Dengue",
+      "Seek emergency hospital care if warning signs appear"
+    ],
+    treatmentOptions: [
+      "Abundant hydration with ORS solution, coconut water, and soups",
+      "Paracetamol for fever (CRITICAL: Avoid Aspirin & Ibuprofen)",
+      "Complete bed rest"
+    ],
+    prevention: [
+      "Eliminate stagnant water around home",
+      "Apply mosquito repellent containing DEET or Picaridin",
+      "Wear full-sleeved clothing during dawn & dusk"
+    ]
+  },
+  shortness_of_breath: {
+    title: "Shortness of Breath & Dyspnea",
+    icon: "🫁",
+    keywords: ["shortness of breath", "breathlessness", "breathing issue", "gasping", "wheezing", "सांस फूलना", "শ্বাসকষ্ট"],
+    severityLevels: {
+      high: "Inability to speak full sentences or bluish lips",
+      medium: "Breathlessness when walking or climbing stairs",
+      low: "Mild breathlessness after heavy physical exercise"
+    },
+    commonCauses: ["Asthma exacerbation", "COPD / Bronchitis", "Anxiety or panic attack", "Pneumonia", "Cardiac issues"],
+    redFlags: [
+      "Sudden onset severe shortness of breath",
+      "Chest tightness, pressure, or radiating arm pain",
+      "Bluish tint to lips or fingertips"
+    ],
+    whenToSeeDoctor: [
+      "Seek emergency care (Call 102/108) immediately for severe dyspnea",
+      "Shortness of breath occurring while resting or sleeping",
+      "Accompanied by leg swelling or high fever"
+    ],
+    treatmentOptions: [
+      "Sit upright in a comfortable position",
+      "Use prescribed inhaler (Albuterol) if asthmatic",
+      "Practice slow, deep, pursed-lip breathing",
+      "Ensure adequate fresh airflow"
+    ],
+    prevention: [
+      "Avoid respiratory irritants and heavy smog",
+      "Take prescribed asthma maintenance medications consistently",
+      "Avoid tobacco smoke exposure"
+    ]
+  },
+  chest_pain: {
+    title: "Chest Pain & Cardiac Warning",
+    icon: "🫀",
+    keywords: ["chest pain", "chest pressure", "heart pain", "chest tightness", "सीने में दर्द", "বুকে ব্যথা"],
+    severityLevels: {
+      high: "Crushing chest pressure radiating to arm or jaw",
+      medium: "Sharp chest pain worsening with deep breath",
+      low: "Mild muscle strain or acid reflux"
+    },
+    commonCauses: ["Coronary artery disease / Angina", "GERD / Acid reflux", "Intercostal muscle strain", "Pericarditis"],
+    redFlags: [
+      "Crushing heaviness or squeezing sensation in center of chest",
+      "Pain radiating to left arm, neck, jaw, or shoulder",
+      "Accompanied by cold sweating, nausea, or dizziness"
+    ],
+    whenToSeeDoctor: [
+      "EMERGENCY: Any unexplained chest pain requires immediate emergency evaluation (Dial 102/108)",
+      "Do not drive yourself; request emergency ambulance transport"
+    ],
+    treatmentOptions: [
+      "Cease all physical activity immediately and sit down",
+      "Loosen restrictive clothing around neck and waist",
+      "Use prescribed angina medication (Nitroglycerin) if directed by doctor",
+      "Seek emergency medical response"
+    ],
+    prevention: [
+      "Maintain blood pressure and blood cholesterol in healthy range",
+      "Follow a heart-healthy diet low in saturated fats",
+      "Engage in regular moderate exercise under medical guidance"
+    ]
+  },
+  fatigue: {
+    title: "Fatigue & Lethargy",
+    icon: "😴",
+    keywords: ["fatigue", "tired", "weakness", "exhaustion", "lethargy", "थकान", "ক্লান্তি"],
+    severityLevels: {
+      high: "Inability to perform basic daily activities or fainting",
+      medium: "Persistent fatigue despite 8+ hours of sleep",
+      low: "Temporary tiredness following heavy physical work"
+    },
+    commonCauses: ["Iron deficiency anemia", "Post-viral recovery", "Thyroid imbalance", "Vitamin D/B12 deficiency"],
+    redFlags: [
+      "Fatigue accompanied by unexplained weight loss",
+      "Fainting spells or loss of consciousness",
+      "Shortness of breath on light walking"
+    ],
+    whenToSeeDoctor: [
+      "Fatigue lasts > 2 weeks without clear cause",
+      "Accompanied by persistent low fever or swollen glands",
+      "Severely impacts daily work or concentration"
+    ],
+    treatmentOptions: [
+      "Ensure 7-9 hours of restful sleep every night",
+      "Maintain balanced diet rich in iron, green leafy vegetables, and proteins",
+      "Drink adequate water throughout the day",
+      "Incorporate 20-30 minutes of light walking"
+    ],
+    prevention: [
+      "Maintain consistent sleep hygiene",
+      "Schedule annual health checkup including CBC & Vitamin levels",
+      "Manage work stress and take regular short breaks"
+    ]
+  },
+  dengue: {
+    title: "Dengue",
+    icon: "🦟",
+    keywords: ["dengue", "डेंगू", "डेगू"],
+    severityLevels: {
+      high: "Severe abdominal pain, persistent vomiting, difficulty breathing, bleeding from nose or gums",
+      medium: "High fever (>102°F), severe headache, joint and muscle pain, skin rash",
+      low: "Mild fever, headache, body ache"
+    },
+    commonCauses: ["Mosquito bite (Aedes mosquito)", "Poor sanitation", "Standing water collection"],
+    redFlags: [
+      "Persistent vomiting (more than 3 times in 24 hours)",
+      "Severe abdominal pain or tenderness",
+      "Bleeding from nose or gums",
+      "Blood in vomit or stools",
+      "Difficulty breathing or rapid breathing",
+      "Extreme fatigue or restlessness",
+      "Cold, clammy skin"
+    ],
+    whenToSeeDoctor: [
+      "High fever (101°F or higher) lasting more than 2 days",
+      "Severe headache that doesn't improve with over-the-counter pain relievers",
+      "Joint or muscle pain that makes movement difficult",
+      "Rash or red spots on skin",
+      "Any warning signs of severe dengue"
+    ],
+    treatmentOptions: [
+      "Drink plenty of oral fluids (water, ORS, juice) to prevent dehydration",
+      "Rest completely",
+      "Use paracetamol (acetaminophen) for fever and pain (avoid NSAIDs like ibuprofen)",
+      "Protect yourself from mosquito bites to prevent spreading the virus"
+    ],
+    prevention: [
+      "Eliminate mosquito breeding sites by emptying containers with stagnant water",
+      "Use mosquito repellents on exposed skin",
+      "Wear long-sleeved clothing, especially during dawn and dusk",
+      "Install mosquito nets over beds"
+    ]
+  }
+
+
+};
+
+// Symptom Dictionary Helper Functions
+function findSymptomInDictionary(text) {
+  if (!text) return null;
+  const lower = text.toLowerCase();
+  for (const key in SYMPTOMS_DICTIONARY) {
+    const sym = SYMPTOMS_DICTIONARY[key];
+    if (sym.keywords.some(kw => lower.includes(kw.toLowerCase()))) {
+      return sym;
+    }
+  }
+  return null;
+}
+
+function formatSymptomClinicalSummary(sym) {
+  return `
+    <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); padding:14px; border-radius:12px; margin-top:8px;">
+      <div style="font-weight:700; font-size:1.05rem; color:var(--primary); margin-bottom:6px;">
+        ${sym.icon} Clinical Overview: ${sym.title}
+      </div>
+      <div style="font-size:0.88rem; margin-bottom:8px;">
+        <strong>Common Causes:</strong> ${sym.commonCauses.join(', ')}.
+      </div>
+      <div style="font-size:0.88rem; margin-bottom:8px;">
+        <strong style="color:var(--primary);">💊 Self-Care & Treatment:</strong>
+        <ul style="margin-left:20px; margin-top:4px;">
+          ${sym.treatmentOptions.map(t => `<li>${t}</li>`).join('')}
+        </ul>
+      </div>
+      <div style="font-size:0.88rem; margin-bottom:8px; color:#fca5a5;">
+        <strong>🚩 Red Flags (Seek Urgent Care):</strong>
+        <ul style="margin-left:20px; margin-top:4px;">
+          ${sym.redFlags.map(rf => `<li>${rf}</li>`).join('')}
+        </ul>
+      </div>
+      <div style="font-size:0.85rem; color:var(--text-muted);">
+        <strong>🏥 When to Consult a Physician:</strong> ${sym.whenToSeeDoctor.join(' • ')}
+      </div>
+    </div>
+  `;
+}
+
 let wizardAnswers = {};
 
 function initSymptomChecker() {
@@ -327,27 +1005,38 @@ function renderWizardResults(container) {
   let riskScore = 'Low';
   let badgeClass = 'badge-success';
   let advice = 'Your reported symptoms indicate a low risk profile. Rest, maintain hydration, and monitor your symptoms.';
+  let matchedSymKey = 'fever';
 
   if (wizardAnswers.breathing === 'Yes, severe' || wizardAnswers.fever === 'High (>102°F)') {
     riskScore = 'High';
     badgeClass = 'badge-danger';
     advice = '⚠️ HIGH RISK: Immediate medical evaluation is recommended. Please visit the nearest hospital emergency or consult a clinician.';
+    matchedSymKey = wizardAnswers.breathing === 'Yes, severe' ? 'shortness_of_breath' : 'fever';
   } else if (wizardAnswers.duration === 'More than a week' || wizardAnswers.fatigue === 'Severe') {
     riskScore = 'Moderate';
     badgeClass = 'badge-warning';
     advice = 'MODERATE RISK: Consult a primary care doctor within 24-48 hours for a thorough physical check-up.';
+    matchedSymKey = wizardAnswers.fatigue === 'Severe' ? 'fatigue' : 'fever';
   }
 
+  const symDetails = SYMPTOMS_DICTIONARY[matchedSymKey] || SYMPTOMS_DICTIONARY.fever;
+
   container.innerHTML = `
-    <div style="text-align:center; padding:10px 0;">
-      <div style="font-size:2.5rem; margin-bottom:8px;">🩺</div>
-      <h3 style="margin-bottom:8px;">Assessment Completed</h3>
-      <div style="margin-bottom:16px;">
-        <span class="badge ${badgeClass}" style="font-size:1rem; padding:8px 16px;">Risk Level: ${riskScore}</span>
+    <div style="padding:10px 0;">
+      <div style="text-align:center;">
+        <div style="font-size:2.5rem; margin-bottom:8px;">${symDetails.icon}</div>
+        <h3 style="margin-bottom:8px;">Assessment Completed</h3>
+        <div style="margin-bottom:16px;">
+          <span class="badge ${badgeClass}" style="font-size:1rem; padding:8px 16px;">Risk Level: ${riskScore}</span>
+        </div>
+        <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:16px;">${advice}</p>
       </div>
-      <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:24px;">${advice}</p>
-      <div style="display:flex; gap:12px; justify-content:center;">
-        <button class="btn btn-primary" onclick="closeModal('symptom-modal'); showSection('hospitals');">Find Nearest Hospital</button>
+
+      ${formatSymptomClinicalSummary(symDetails)}
+
+      <div style="display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="closeModal('symptom-modal'); showSection('hospitals');">Find Nearest Hospital 🏥</button>
+        <button class="btn btn-secondary" onclick="closeModal('symptom-modal'); showSection('chat');">Talk to AI Doctor 💬</button>
         <button class="btn btn-secondary" onclick="closeModal('symptom-modal')">Close</button>
       </div>
     </div>
@@ -458,7 +1147,9 @@ const DEFAULT_HOSPITALS_DATA = [
   { id: 'hosp-1', name: 'AIIMS New Delhi', lat: 28.5672, lng: 77.2100, beds: 18, emergency: true, rating: '4.9 ⭐', dist: '1.2 km', address: 'Sri Aurobindo Marg, Ansari Nagar, New Delhi' },
   { id: 'hosp-2', name: 'Fortis Healthcare', lat: 28.5447, lng: 77.2646, beds: 8, emergency: true, rating: '4.7 ⭐', dist: '3.5 km', address: 'Okhla Road, New Delhi' },
   { id: 'hosp-3', name: 'Max Super Speciality Hospital', lat: 28.5284, lng: 77.2185, beds: 14, emergency: true, rating: '4.8 ⭐', dist: '4.1 km', address: 'Press Enclave Road, Saket, New Delhi' },
-  { id: 'hosp-4', name: 'Apollo Clinic Specialty Center', lat: 28.5615, lng: 77.2401, beds: 5, emergency: false, rating: '4.5 ⭐', dist: '2.0 km', address: 'Lajpat Nagar III, New Delhi' }
+  { id: 'hosp-4', name: 'Apollo Clinic Specialty Center', lat: 28.5615, lng: 77.2401, beds: 5, emergency: false, rating: '4.5 ⭐', dist: '2.0 km', address: 'Lajpat Nagar III, New Delhi' },
+  { id: 'hosp-5', name: 'City Hospital', lat: 28.5500, lng: 77.2300, beds: 10, emergency: true, rating: '4.6 ⭐', dist: '1.8 km', address: 'Kalkaji, New Delhi' },
+  { id: 'hosp-6', name: 'Metro General Hospital', lat: 28.5800, lng: 77.2200, beds: 6, emergency: true, rating: '4.4 ⭐', dist: '2.5 km', address: 'Rohini, New Delhi' }
 ];
 
 function initHospitalRadar() {
@@ -1190,7 +1881,7 @@ function generateSVGQRCode(text, size = 120) {
     for (let c = 0; c < cols; c++) {
       // Skip finder pattern zones
       if ((r < 7 && c < 7) || (r < 7 && c >= cols - 7) || (r >= cols - 7 && c < 7)) continue;
-      
+
       const seed = Math.abs((hash ^ (r * 31 + c * 17)) % 100);
       if (seed > 45) {
         const x = c * tileSize;

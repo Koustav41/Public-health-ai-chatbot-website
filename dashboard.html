@@ -40,7 +40,7 @@
       </nav>
 
       <div style="margin-top:auto;">
-        <a href="index.html" class="btn btn-danger btn-sm" style="width:100%;">🔴 Logout</a>
+        <button type="button" onclick="logoutUser()" class="btn btn-danger btn-sm" style="width:100%;">🔴 Logout</button>
       </div>
     </aside>
 
@@ -97,6 +97,8 @@
               evidence-based algorithms.</p>
           </div>
           <div style="display:flex; gap:10px; align-items:center;">
+            <button type="button" class="btn btn-secondary btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Set Gemini Key</button>
+            <span class="badge badge-secondary gemini-status-badge">📖 Offline Clinical Mode</span>
             <label style="font-size:0.85rem; color:var(--text-muted);">Language:</label>
             <select id="chat-lang-select" class="form-control" style="width:140px; padding:6px 10px;">
               <option value="en">English</option>

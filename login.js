@@ -1,4 +1,50 @@
+/**
+ * Mediyogi AI - Authentication Logic (Login & Registration System)
+ */
+
+// Initialize default users if not present in localStorage
+function getRegisteredUsers() {
+  let users = JSON.parse(localStorage.getItem('mediyogi_registered_users'));
+  if (!users || !Array.isArray(users) || users.length === 0) {
+    users = [
+      {
+        name: 'Priya Verma',
+        email: 'priya.verma@health.in',
+        password: 'password123',
+        phone: '+91 98765 43210',
+        bloodGroup: 'O+',
+        healthId: 'ABDM-91-8420-1129-90',
+        city: 'New Delhi',
+        avatar: 'PV',
+        dob: '1998-05-14',
+        gender: 'Female'
+      }
+    ];
+    localStorage.setItem('mediyogi_registered_users', JSON.stringify(users));
+  }
+  return users;
+}
+
+// Show alert banner on login/register page
+function showAuthAlert(message, type = 'error') {
+  const alertEl = document.getElementById('auth-alert');
+  if (!alertEl) return;
+  alertEl.className = `auth-alert ${type}`;
+  alertEl.innerHTML = (type === 'error' ? '⚠️ ' : type === 'success' ? '✅ ' : 'ℹ️ ') + message;
+  alertEl.style.display = 'flex';
+}
+
+// Clear alert banner
+function hideAuthAlert() {
+  const alertEl = document.getElementById('auth-alert');
+  if (alertEl) {
+    alertEl.style.display = 'none';
+  }
+}
+
+// Tab Switching
 function switchAuthTab(type) {
+  hideAuthAlert();
   const loginForm = document.getElementById('login-form');
   const regForm = document.getElementById('register-form');
   const loginBtn = document.getElementById('tab-login-btn');
@@ -17,32 +63,156 @@ function switchAuthTab(type) {
   }
 }
 
+// Toggle password visibility
+function togglePasswordVisibility(inputId, btnEl) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btnEl.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btnEl.textContent = '👁️';
+  }
+}
+
+// Handle Login Submit
 function handleLoginSubmit(e) {
   e.preventDefault();
-  const user = document.getElementById('login-user').value;
-  saveUserSession(user || 'Priya Verma');
+  hideAuthAlert();
+
+  const userInput = document.getElementById('login-user').value.trim();
+  const passInput = document.getElementById('login-pass').value;
+
+  if (!userInput || !passInput) {
+    showAuthAlert('Please enter both email/username and password.', 'error');
+    return;
+  }
+
+  const users = getRegisteredUsers();
+  const matchedUser = users.find(u => 
+    (u.email.toLowerCase() === userInput.toLowerCase() || u.name.toLowerCase() === userInput.toLowerCase()) &&
+    u.password === passInput
+  );
+
+  if (matchedUser) {
+    showAuthAlert('Login successful! Redirecting...', 'success');
+    setTimeout(() => {
+      saveUserSession(matchedUser);
+    }, 600);
+  } else {
+    showAuthAlert('Invalid email or password. Please check your credentials or create a new account.', 'error');
+  }
 }
 
+// Handle Register Submit
 function handleRegisterSubmit(e) {
   e.preventDefault();
-  const name = document.getElementById('reg-name').value;
-  saveUserSession(name);
-}
+  hideAuthAlert();
 
-function handleGuestLogin() {
-  saveUserSession('Priya Verma');
-}
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pass = document.getElementById('reg-pass').value;
+  const city = document.getElementById('reg-city').value.trim() || 'New Delhi';
 
-function saveUserSession(userName) {
-  const userObj = {
-    name: userName,
-    email: 'priya.verma@health.in',
-    phone: '+91 98765 43210',
+  if (!name || name.length < 2) {
+    showAuthAlert('Please enter a valid full name (at least 2 characters).', 'error');
+    return;
+  }
+
+  if (!email || !email.includes('@') || !email.includes('.')) {
+    showAuthAlert('Please enter a valid email address.', 'error');
+    return;
+  }
+
+  if (!pass || pass.length < 6) {
+    showAuthAlert('Password must be at least 6 characters long.', 'error');
+    return;
+  }
+
+  const users = getRegisteredUsers();
+  const existingUser = users.find(u => u.email.toLowerCase() === email);
+
+  if (existingUser) {
+    showAuthAlert('An account with this email already exists. Please log in.', 'error');
+    return;
+  }
+
+  // Derive initials for Avatar
+  const nameParts = name.split(' ').filter(p => p.length > 0);
+  let avatar = 'U';
+  if (nameParts.length >= 2) {
+    avatar = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
+  } else if (nameParts.length === 1) {
+    avatar = nameParts[0].substring(0, 2).toUpperCase();
+  }
+
+  // Generate ABDM Health ID
+  const r1 = Math.floor(1000 + Math.random() * 9000);
+  const r2 = Math.floor(1000 + Math.random() * 9000);
+  const r3 = Math.floor(10 + Math.random() * 90);
+  const healthId = `ABDM-91-${r1}-${r2}-${r3}`;
+
+  const newUser = {
+    name: name,
+    email: email,
+    password: pass,
+    phone: '+91 ' + Math.floor(7000000000 + Math.random() * 2999999999),
     bloodGroup: 'O+',
-    healthId: 'ABDM-91-8420-1129-90',
-    city: 'New Delhi'
+    healthId: healthId,
+    city: city,
+    avatar: avatar,
+    dob: '1998-05-14',
+    gender: 'General'
   };
 
-  localStorage.setItem('mediyogi_user', JSON.stringify(userObj));
-  window.location.href = 'dashboard.html';
+  users.push(newUser);
+  localStorage.setItem('mediyogi_registered_users', JSON.stringify(users));
+
+  showAuthAlert('Account created successfully! Logging you in...', 'success');
+  setTimeout(() => {
+    saveUserSession(newUser);
+  }, 700);
 }
+
+// Handle Instant Guest Login
+function handleGuestLogin() {
+  const users = getRegisteredUsers();
+  const guest = users.find(u => u.email === 'priya.verma@health.in') || users[0];
+  showAuthAlert('Logging in as Instant Guest...', 'success');
+  setTimeout(() => {
+    saveUserSession(guest);
+  }, 400);
+}
+
+// Save active session & redirect
+function saveUserSession(userObj) {
+  // Create session payload (omit plain password for safety)
+  const sessionData = {
+    name: userObj.name,
+    email: userObj.email,
+    phone: userObj.phone || '+91 98765 43210',
+    bloodGroup: userObj.bloodGroup || 'O+',
+    healthId: userObj.healthId || 'ABDM-91-8420-1129-90',
+    city: userObj.city || 'New Delhi',
+    avatar: userObj.avatar || 'PV',
+    dob: userObj.dob || '1998-05-14',
+    gender: userObj.gender || 'Female'
+  };
+
+  localStorage.setItem('mediyogi_user', JSON.stringify(sessionData));
+
+  // Determine redirect URL from query string or default to dashboard
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirectTarget = urlParams.get('redirect') || 'dashboard.html';
+  window.location.href = redirectTarget;
+}
+
+// Check on page initialization if notice needed
+document.addEventListener('DOMContentLoaded', () => {
+  getRegisteredUsers();
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('msg') === 'login_required') {
+    showAuthAlert('Please login or create an account to access the Mediyogi AI patient portal.', 'info');
+  }
+});
