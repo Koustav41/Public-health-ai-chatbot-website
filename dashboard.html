@@ -8,6 +8,13 @@
   <link rel="stylesheet" href="style.css" />
   <!-- Leaflet Map CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script>
+    (function () {
+      const saved = localStorage.getItem('mediyogi_theme');
+      const theme = (saved === 'light' || saved === 'dark') ? saved : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
 </head>
 
 <body>
@@ -39,7 +46,11 @@
         </a>
       </nav>
 
-      <div style="margin-top:auto;">
+      <div style="margin-top:auto; display:flex; flex-direction:column; gap:10px;">
+        <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme" style="width:100%;">
+          <span class="theme-icon">🌙</span>
+          <span class="theme-label">Dark</span>
+        </button>
         <button type="button" onclick="logoutUser()" class="btn btn-danger btn-sm" style="width:100%;">🔴 Logout</button>
       </div>
     </aside>
@@ -61,7 +72,11 @@
           </div>
         </div>
 
-        <div style="display:flex; gap:12px;">
+        <div style="display:flex; gap:12px; align-items:center;">
+          <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
+            <span class="theme-icon">🌙</span>
+            <span class="theme-label">Dark</span>
+          </button>
           <button id="start-symptom-wizard" class="btn btn-primary">⚡ Symptom Checker Quiz</button>
           <a href="ai.html" class="btn btn-secondary">Full AI Workspace</a>
         </div>

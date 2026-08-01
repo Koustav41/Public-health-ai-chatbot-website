@@ -58,7 +58,7 @@
 
     .info-pill strong {
       font-size: 1rem;
-      color: #ffffff;
+      color: var(--text-main);
     }
 
     /* PRINT STYLESHEET */
@@ -93,6 +93,13 @@
       }
     }
   </style>
+  <script>
+    (function () {
+      const saved = localStorage.getItem('mediyogi_theme');
+      const theme = (saved === 'light' || saved === 'dark') ? saved : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
 </head>
 <body>
 
@@ -103,6 +110,10 @@
       <span>Mediyogi <span style="color:var(--primary); font-size:0.8rem; border:1px solid var(--primary); padding:2px 8px; border-radius:12px;">AI Emergency</span></span>
     </a>
     <div style="display:flex; gap:12px; align-items:center;">
+      <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
+        <span class="theme-icon">🌙</span>
+        <span class="theme-label">Dark</span>
+      </button>
       <a href="dashboard.html" class="btn btn-secondary btn-sm">‹ Return to Dashboard</a>
       <button type="button" class="btn btn-danger btn-sm" onclick="logoutUser()">🔴 Logout</button>
       <button type="button" class="btn btn-primary btn-sm" onclick="window.print()">🖨️ Print / Save PDF</button>
@@ -316,7 +327,7 @@
       const reportsContainer = document.getElementById('pub-reports-list');
       if (reportsContainer && AppState.reports) {
         reportsContainer.innerHTML = AppState.reports.map(rep => `
-          <div style="background:rgba(15,23,42,0.6); border:1px solid var(--border-color); border-radius:12px; padding:14px;">
+          <div style="background:var(--bg-input); border:1px solid var(--border-color); border-radius:12px; padding:14px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
               <strong style="color:var(--text-main); font-size:0.95rem;">${rep.title}</strong>
               <span class="badge badge-info">${rep.date}</span>

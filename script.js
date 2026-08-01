@@ -125,6 +125,7 @@ const AI_KNOWLEDGE = {
 
 // Initialize Application on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   initUIState();
   initChatEngine();
   initReportParser();
@@ -133,6 +134,69 @@ document.addEventListener('DOMContentLoaded', () => {
   initSymptomChecker();
   initProfileManagement();
 });
+
+/* ==========================================================================
+   THEME MANAGEMENT (LIGHT / DARK MODE)
+   ========================================================================== */
+function getPreferredTheme() {
+  const savedTheme = localStorage.getItem('mediyogi_theme');
+  if (savedTheme === 'light' || savedTheme === 'dark') {
+    return savedTheme;
+  }
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function applyTheme(theme) {
+  const targetTheme = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', targetTheme);
+  if (document.body) document.body.setAttribute('data-theme', targetTheme);
+  localStorage.setItem('mediyogi_theme', targetTheme);
+  updateThemeToggleUI(targetTheme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || getPreferredTheme();
+  const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+  applyTheme(nextTheme);
+}
+
+function updateThemeToggleUI(theme) {
+  const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
+  toggleBtns.forEach(btn => {
+    const isLight = theme === 'light';
+    btn.setAttribute('aria-label', isLight ? 'Switch to Dark Theme' : 'Switch to Light Theme');
+    btn.setAttribute('title', isLight ? 'Switch to Dark Theme' : 'Switch to Light Theme');
+    
+    const iconSpan = btn.querySelector('.theme-icon');
+    const labelSpan = btn.querySelector('.theme-label');
+    
+    if (iconSpan) {
+      iconSpan.textContent = isLight ? '☀️' : '🌙';
+    }
+    if (labelSpan) {
+      labelSpan.textContent = isLight ? 'Light' : 'Dark';
+    }
+  });
+}
+
+function initTheme() {
+  const currentTheme = getPreferredTheme();
+  applyTheme(currentTheme);
+  
+  const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
+  toggleBtns.forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      toggleTheme();
+    };
+  });
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'mediyogi_theme' && e.newValue) {
+      applyTheme(e.newValue);
+    }
+  });
+}
 
 // UI & Navigation Switching
 function showSection(sectionId) {

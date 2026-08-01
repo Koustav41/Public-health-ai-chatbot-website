@@ -7,13 +7,25 @@
   <title>Mediyogi AI — Login & Register</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="login.css" />
+  <script>
+    (function () {
+      const saved = localStorage.getItem('mediyogi_theme');
+      const theme = (saved === 'light' || saved === 'dark') ? saved : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
 </head>
 
 <body>
 
   <div class="login-wrapper">
-    <a href="index.html" class="btn btn-secondary btn-sm" style="position:absolute; top:24px; left:24px;">← Back to
-      Home</a>
+    <div style="position:absolute; top:24px; left:24px; right:24px; display:flex; justify-content:space-between; align-items:center;">
+      <a href="index.html" class="btn btn-secondary btn-sm">← Back to Home</a>
+      <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
+        <span class="theme-icon">🌙</span>
+        <span class="theme-label">Dark</span>
+      </button>
+    </div>
 
     <div class="glass-card login-card">
       <div class="brand" style="justify-content:center; margin-bottom:20px;">

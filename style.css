@@ -1,14 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-:root {
+:root, [data-theme="dark"] {
   --font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   
-  /* Color Palette - Premium Healthcare Tech Theme */
+  /* Color Palette - Dark Premium Healthcare Theme */
   --bg-main: #0b0f19;
   --bg-card: rgba(18, 24, 38, 0.75);
   --bg-card-hover: rgba(28, 36, 56, 0.85);
   --bg-glass: rgba(255, 255, 255, 0.04);
-  --bg-glass-light: rgba(255, 255, 255, 0.95);
+  --bg-glass-light: rgba(255, 255, 255, 0.06);
+  --bg-input: rgba(15, 23, 42, 0.6);
+  --bg-input-focus: rgba(15, 23, 42, 0.85);
+  --bg-nav: rgba(11, 15, 25, 0.85);
+  --bg-sidebar: rgba(11, 15, 25, 0.95);
+  --bg-modal: #0f172a;
+  --bg-chat-bot: rgba(30, 41, 59, 0.9);
+  --bg-chat-composer: rgba(15, 23, 42, 0.8);
+  
   --border-color: rgba(255, 255, 255, 0.08);
   --border-highlight: rgba(16, 185, 129, 0.3);
   
@@ -41,6 +49,57 @@
 
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --hero-title-grad: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+  --body-mesh-grad-1: radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+  --body-mesh-grad-2: radial-gradient(circle at 85% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+  --body-mesh-grad-3: radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.06) 0%, transparent 50%);
+}
+
+[data-theme="light"] {
+  /* Color Palette - Light Clean Healthcare Tech Theme */
+  --bg-main: #f4f6fb;
+  --bg-card: rgba(255, 255, 255, 0.88);
+  --bg-card-hover: rgba(255, 255, 255, 0.98);
+  --bg-glass: rgba(15, 23, 42, 0.03);
+  --bg-glass-light: rgba(15, 23, 42, 0.05);
+  --bg-input: #ffffff;
+  --bg-input-focus: #ffffff;
+  --bg-nav: rgba(255, 255, 255, 0.88);
+  --bg-sidebar: rgba(255, 255, 255, 0.94);
+  --bg-modal: #ffffff;
+  --bg-chat-bot: #f1f5f9;
+  --bg-chat-composer: rgba(248, 250, 252, 0.95);
+  
+  --border-color: rgba(203, 213, 225, 0.7);
+  --border-highlight: rgba(16, 185, 129, 0.4);
+  
+  --primary: #059669;
+  --primary-hover: #047857;
+  --primary-glow: rgba(5, 150, 105, 0.2);
+  
+  --secondary: #0891b2;
+  --secondary-glow: rgba(8, 145, 178, 0.2);
+  
+  --accent: #4f46e5;
+  --accent-glow: rgba(79, 70, 229, 0.2);
+  
+  --danger: #e11d48;
+  --warning: #d97706;
+  --success: #059669;
+  
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #64748b;
+  
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 8px 30px rgba(15, 23, 42, 0.08);
+  --shadow-glow: 0 0 25px rgba(5, 150, 105, 0.12);
+  
+  --hero-title-grad: linear-gradient(135deg, #0f172a 30%, #334155 100%);
+  --body-mesh-grad-1: radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.12) 0%, transparent 45%);
+  --body-mesh-grad-2: radial-gradient(circle at 85% 20%, rgba(6, 182, 212, 0.12) 0%, transparent 45%);
+  --body-mesh-grad-3: radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 50%);
 }
 
 /* Base Styles */
@@ -58,6 +117,7 @@ html, body {
   line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 /* Background Animated Gradient Mesh */
@@ -69,11 +129,12 @@ body::before {
   width: 100vw;
   height: 100vh;
   background: 
-    radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.06) 0%, transparent 50%);
+    var(--body-mesh-grad-1),
+    var(--body-mesh-grad-2),
+    var(--body-mesh-grad-3);
   pointer-events: none;
   z-index: -1;
+  transition: background var(--transition-normal);
 }
 
 a {
@@ -245,7 +306,7 @@ a:hover {
 .form-control, select.form-control, textarea.form-control {
   width: 100%;
   padding: 12px 16px;
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--bg-input);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-main);
@@ -258,7 +319,43 @@ a:hover {
 .form-control:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-glow);
-  background: rgba(15, 23, 42, 0.85);
+  background: var(--bg-input-focus);
+}
+
+/* Theme Toggle Button Component */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 30px;
+  background: var(--bg-glass-light);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  outline: none;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--primary-glow);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.theme-toggle-btn .theme-icon {
+  font-size: 1.05rem;
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-toggle-btn:hover .theme-icon {
+  transform: rotate(20deg) scale(1.15);
 }
 
 /* Header & Nav for Landing Page */
@@ -272,7 +369,7 @@ a:hover {
   justify-content: space-between;
   align-items: center;
   padding: 16px 40px;
-  background: rgba(11, 15, 25, 0.8);
+  background: var(--bg-nav);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
 }
@@ -301,7 +398,7 @@ a:hover {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 24px;
   list-style: none;
 }
 
@@ -331,7 +428,7 @@ a:hover {
   font-weight: 800;
   line-height: 1.15;
   margin-bottom: 20px;
-  background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+  background: var(--hero-title-grad);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -416,7 +513,7 @@ a:hover {
 /* DASHBOARD LAYOUT */
 .sidebar {
   width: 260px;
-  background: rgba(11, 15, 25, 0.95);
+  background: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   padding: 24px;
   display: flex;
@@ -428,6 +525,7 @@ a:hover {
   left: 0;
   z-index: 50;
   overflow-y: auto;
+  transition: background var(--transition-normal), border-color var(--transition-normal);
 }
 
 .sidebar-nav {
@@ -554,7 +652,7 @@ a:hover {
 
 .chat-message.bot {
   align-self: flex-start;
-  background: rgba(30, 41, 59, 0.9);
+  background: var(--bg-chat-bot);
   color: var(--text-main);
   border: 1px solid var(--border-color);
   border-bottom-left-radius: 4px;
@@ -569,7 +667,7 @@ a:hover {
 
 .chat-composer {
   padding: 16px;
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--bg-chat-composer);
   border-top: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -785,7 +883,8 @@ a:hover {
 }
 
 .modal-content {
-  background: #0f172a;
+  background: var(--bg-modal);
+  color: var(--text-main);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
   padding: 32px;
@@ -809,7 +908,43 @@ a:hover {
 }
 
 .modal-close:hover {
-  color: white;
+  color: var(--text-main);
+}
+
+/* Light Mode Leaflet & Specific Element Enhancements */
+[data-theme="light"] .leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15) !important;
+}
+
+[data-theme="light"] .leaflet-popup-tip {
+  background: #ffffff !important;
+}
+
+[data-theme="light"] .hospital-popup-card h4 {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] .hospital-popup-card p {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .outbreak-ticker {
+  background: rgba(244, 63, 94, 0.08);
+  color: #9f1239;
+}
+
+[data-theme="light"] .search-status-bar {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #1e40af;
+}
+
+[data-theme="light"] #hero-scan-result {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text-main);
 }
 
 /* RESPONSIVE MEDIA QUERIES */

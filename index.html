@@ -5,9 +5,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mediyogi AI — Next-Gen Public Health Companion & AI Triage</title>
+  <link rel="website icon" type="jpg" href=".github/White and Blue Illustrative Online Medical Center Logo.jpg">
   <meta name="description"
     content="Mediyogi is an AI-powered public health platform providing multilingual AI triage, smart EHR lab report analysis, hospital radar, and vital tracking." />
   <link rel="stylesheet" href="style.css" />
+  <script>
+    (function () {
+      const saved = localStorage.getItem('mediyogi_theme');
+      const theme = (saved === 'light' || saved === 'dark') ? saved : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
 </head>
 
 <body>
@@ -26,6 +34,12 @@
       <li><a href="profile.html">Emergency Profile</a></li>
       <li><a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a></li>
       <li id="nav-auth-btn"><a href="login.html" class="btn btn-primary btn-sm">Login / Register</a></li>
+      <li>
+        <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-icon">🌙</span>
+          <span class="theme-label">Dark</span>
+        </button>
+      </li>
     </ul>
   </nav>
 
@@ -151,9 +165,9 @@
   <footer
     style="padding:40px; text-align:center; border-top:1px solid var(--border-color); color:var(--text-muted); font-size:0.9rem;">
     <div style="margin-bottom:16px;">
-      <a href="index.html" style="font-weight:700; color:var(--text-main); font-size:1.2rem;">🩺 Mediyogi AI</a>
+      <a href="index.html" style="font-weight:700; color:var(--text-main); font-size:1.2rem;">🩺 Mediyogi</a>
     </div>
-    <p>&copy; 2026 Mediyogi AI Technologies. All rights reserved. For emergency care, please dial your local emergency
+    <p>&copy; 2026 Mediyogi. All rights reserved. For emergency care, please dial your local emergency
       services.</p>
   </footer>
 

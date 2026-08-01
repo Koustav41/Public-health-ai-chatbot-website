@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mediyogi AI — Standalone Public Health AI Assistant</title>
   <link rel="stylesheet" href="style.css" />
+  <script>
+    (function () {
+      const saved = localStorage.getItem('mediyogi_theme');
+      const theme = (saved === 'light' || saved === 'dark') ? saved : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <style>
     .ai-workspace-wrap {
       max-width: 1280px;
@@ -30,6 +37,10 @@
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
         <span class="badge badge-danger">🔥 Outbreak Alert: Dengue</span>
+        <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-icon">🌙</span>
+          <span class="theme-label">Dark</span>
+        </button>
         <select id="chat-lang-select" class="form-control" style="width:140px; padding:4px 8px;">
           <option value="en">English</option>
           <option value="hi">हिन्दी</option>
@@ -42,7 +53,7 @@
   <div class="ai-workspace-wrap">
     <!-- MAIN CHAT COLUMN -->
     <main class="glass-card chat-container" style="height:calc(100vh - 140px); padding:0; overflow:hidden;">
-      <div style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; background:rgba(15,23,42,0.6);">
+      <div style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; background:var(--bg-input);">
         <div style="display:flex; align-items:center; gap:12px;">
           <div class="brand-icon">🤖</div>
           <div>
