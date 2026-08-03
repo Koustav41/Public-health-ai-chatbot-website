@@ -947,6 +947,39 @@ a:hover {
   color: var(--text-main);
 }
 
+/* HEALTH TOOLS & DOCTOR APPOINTMENTS STYLING */
+.result-box-card {
+  animation: fadeIn 0.25s ease-in-out;
+  transition: all var(--transition-fast);
+}
+
+.active-filter {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 12px var(--primary-glow) !important;
+}
+
+.specialist-card {
+  transition: all var(--transition-fast);
+}
+
+.specialist-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .specialist-card {
+  background: #ffffff !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+}
+
+[data-theme="light"] .result-box-card {
+  background: #f8fafc !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+}
+
 /* RESPONSIVE MEDIA QUERIES */
 @media (max-width: 1024px) {
   .hero-section { grid-template-columns: 1fr; text-align: center; }

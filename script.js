@@ -219,6 +219,9 @@ function showSection(sectionId) {
   // Re-render chart if switching to vitals
   if (sectionId === 'vitals') {
     setTimeout(renderVitalsChart, 100);
+    renderRemindersList();
+  } else if (sectionId === 'doctor-appointment') {
+    renderAppointmentsList();
   }
 }
 
@@ -1570,43 +1573,221 @@ function showSearchStatus(message, visible = true) {
 }
 
 function openBookingModal(hospitalName) {
+  openDoctorAppointmentForm(`Specialist at ${hospitalName}`, 'General Medicine');
+}
+
+function openDoctorAppointmentForm(doctorName = '', specialty = '') {
   const container = document.getElementById('booking-modal-body');
-  if (container) {
-    container.innerHTML = `
-      <h3 style="margin-bottom:16px;">Book Appointment at ${escapeHtml(hospitalName)}</h3>
+  if (!container) return;
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  container.innerHTML = `
+    <h3 style="margin-bottom:16px; font-size:1.3rem; font-weight:800;">📅 Schedule Doctor Appointment</h3>
+    
+    <div class="form-group">
+      <label>Doctor / Specialist Name</label>
+      <input type="text" id="book-doctor-name" class="form-control" placeholder="e.g. Dr. Ananya Sharma" value="${escapeHtml(doctorName || 'Dr. Rajesh Gupta')}">
+    </div>
+
+    <div class="form-group">
+      <label>Department / Specialty</label>
+      <select id="book-dept" class="form-control">
+        <option ${specialty === 'General Medicine' ? 'selected' : ''}>General Medicine & Triage</option>
+        <option ${specialty === 'Cardiology' ? 'selected' : ''}>Cardiology</option>
+        <option ${specialty === 'Pediatrics' ? 'selected' : ''}>Pediatrics</option>
+        <option ${specialty === 'Pulmonology' ? 'selected' : ''}>Pulmonology</option>
+        <option ${specialty === 'Dermatology' ? 'selected' : ''}>Dermatology</option>
+        <option ${specialty === 'Neurology' ? 'selected' : ''}>Neurology</option>
+        <option ${specialty === 'Orthopedics' ? 'selected' : ''}>Orthopedics</option>
+      </select>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
       <div class="form-group">
-        <label>Select Preferred Date</label>
-        <input type="date" id="book-date" class="form-control" value="${new Date().toISOString().split('T')[0]}">
+        <label>Appointment Date</label>
+        <input type="date" id="book-date" class="form-control" value="${todayStr}" min="${todayStr}">
       </div>
       <div class="form-group">
-        <label>Department / Specialty</label>
-        <select id="book-dept" class="form-control">
-          <option>General Medicine & Triage</option>
-          <option>Cardiology</option>
-          <option>Pediatrics</option>
-          <option>Pulmonology</option>
-          <option>Emergency & ICU</option>
+        <label>Time Slot</label>
+        <select id="book-slot" class="form-control">
+          <option value="09:30 AM">09:30 AM (Morning)</option>
+          <option value="11:00 AM">11:00 AM (Morning)</option>
+          <option value="02:30 PM">02:30 PM (Afternoon)</option>
+          <option value="05:00 PM">05:00 PM (Evening)</option>
         </select>
       </div>
-      <div style="display:flex; gap:12px; margin-top:24px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="confirmBooking('${escapeHtml(hospitalName)}')">Confirm Booking</button>
-        <button class="btn btn-secondary" onclick="closeModal('booking-modal')">Cancel</button>
-      </div>
-    `;
-  }
+    </div>
+
+    <div class="form-group">
+      <label>Consultation Mode</label>
+      <select id="book-mode" class="form-control">
+        <option value="In-Person Clinic Visit">🏥 In-Person Clinic Visit</option>
+        <option value="HD Video Tele-Consultation">📹 HD Video Tele-Consultation</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Symptoms / Reason for Visit (Optional)</label>
+      <input type="text" id="book-symptoms" class="form-control" placeholder="e.g. Routine checkup, mild fever, hypertension follow-up">
+    </div>
+
+    <div style="display:flex; gap:12px; margin-top:20px;">
+      <button class="btn btn-primary" style="flex:1;" onclick="saveDoctorAppointment()">Confirm & Book Slot</button>
+      <button class="btn btn-secondary" onclick="closeModal('booking-modal')">Cancel</button>
+    </div>
+  `;
+
   openModal('booking-modal');
 }
 
-function confirmBooking(hospName) {
-  const date = document.getElementById('book-date').value;
-  const dept = document.getElementById('book-dept').value;
+function saveDoctorAppointment() {
+  const docName = document.getElementById('book-doctor-name')?.value || 'Dr. Specialist';
+  const dept = document.getElementById('book-dept')?.value || 'General Medicine';
+  const date = document.getElementById('book-date')?.value || new Date().toISOString().split('T')[0];
+  const slot = document.getElementById('book-slot')?.value || '10:00 AM';
+  const mode = document.getElementById('book-mode')?.value || 'In-Person Clinic Visit';
+  const symptoms = document.getElementById('book-symptoms')?.value || 'General Health Consult';
+
   const refId = 'MED-' + Math.floor(100000 + Math.random() * 900000);
 
-  AppState.appointments.push({ hospName, date, dept, refId });
+  const newAppt = {
+    id: 'apt_' + Date.now(),
+    refId,
+    docName,
+    hospName: docName.includes('AIIMS') ? 'AIIMS New Delhi' : 'Mediyogi Medical Center',
+    dept,
+    date,
+    slot,
+    mode,
+    symptoms,
+    status: 'Confirmed'
+  };
+
+  if (!AppState.appointments) AppState.appointments = [];
+  AppState.appointments.unshift(newAppt);
   localStorage.setItem('mediyogi_appointments', JSON.stringify(AppState.appointments));
 
   closeModal('booking-modal');
-  alert(`✅ Appointment Confirmed at ${hospName}!\nReference ID: ${refId}\nDepartment: ${dept}\nDate: ${date}`);
+  showToast(`✅ Appointment booked with ${docName} on ${date} (${slot})!`);
+  renderAppointmentsList();
+}
+
+function renderAppointmentsList(filter = 'all') {
+  const container = document.getElementById('appointments-list-container');
+  if (!container) return;
+
+  if (!AppState.appointments || !Array.isArray(AppState.appointments)) {
+    AppState.appointments = JSON.parse(localStorage.getItem('mediyogi_appointments')) || [];
+  }
+
+  if (AppState.appointments.length === 0) {
+    AppState.appointments = [
+      {
+        id: 'apt_demo_1',
+        refId: 'MED-782910',
+        docName: 'Dr. Ananya Sharma',
+        hospName: 'AIIMS Heart Center',
+        dept: 'Cardiology',
+        date: '2026-08-10',
+        slot: '11:00 AM',
+        mode: 'HD Video Tele-Consultation',
+        symptoms: 'Annual cardiac screening & ECG review',
+        status: 'Confirmed'
+      },
+      {
+        id: 'apt_demo_2',
+        refId: 'MED-491203',
+        docName: 'Dr. Rajesh Gupta',
+        hospName: 'Mediyogi Care Center',
+        dept: 'General Medicine',
+        date: '2026-07-28',
+        slot: '02:30 PM',
+        mode: 'In-Person Clinic Visit',
+        symptoms: 'Follow-up for blood pressure check',
+        status: 'Completed'
+      }
+    ];
+    localStorage.setItem('mediyogi_appointments', JSON.stringify(AppState.appointments));
+  }
+
+  let list = AppState.appointments;
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  if (filter === 'upcoming') {
+    list = list.filter(a => a.date >= todayStr && a.status !== 'Cancelled');
+  } else if (filter === 'completed') {
+    list = list.filter(a => a.date < todayStr || a.status === 'Completed');
+  }
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:30px 15px;">
+        <div style="font-size:2.2rem; margin-bottom:8px;">📅</div>
+        <h4 style="margin-bottom:6px;">No Appointments Found</h4>
+        <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:14px;">You have no ${filter} doctor appointments.</p>
+        <button class="btn btn-primary btn-sm" onclick="openDoctorAppointmentForm()">Book New Appointment</button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      ${list.map(appt => `
+        <div class="glass-card" style="padding:16px; background:var(--bg-glass-light); border:1px solid var(--border-color); position:relative;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <div>
+              <span style="font-size:0.75rem; color:var(--secondary); font-weight:700; font-family:monospace;">${appt.refId}</span>
+              <h4 style="font-size:1.1rem; font-weight:800; color:var(--text-main); margin-top:2px;">${escapeHtml(appt.docName)}</h4>
+              <div style="font-size:0.85rem; color:var(--text-muted);">${escapeHtml(appt.dept)} • ${escapeHtml(appt.hospName || 'Clinic')}</div>
+            </div>
+            <span class="badge ${appt.status === 'Confirmed' ? 'badge-success' : appt.status === 'Completed' ? 'badge-info' : 'badge-danger'}">
+              ${appt.status === 'Confirmed' ? '🟢 Confirmed' : appt.status === 'Completed' ? '🔵 Completed' : '🔴 Cancelled'}
+            </span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.85rem; background:rgba(0,0,0,0.15); padding:10px; border-radius:8px; margin-bottom:12px;">
+            <div>🗓️ <strong>Date:</strong> ${appt.date} (${appt.slot || '10:00 AM'})</div>
+            <div>🩺 <strong>Mode:</strong> ${escapeHtml(appt.mode || 'Clinic Visit')}</div>
+            <div style="grid-column:span 2;">📝 <strong>Reason:</strong> ${escapeHtml(appt.symptoms || 'General Checkup')}</div>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:8px;">
+            ${appt.status === 'Confirmed' ? `
+              <button class="btn btn-secondary btn-sm" style="font-size:0.8rem;" onclick="openDoctorAppointmentForm('${escapeHtml(appt.docName)}', '${escapeHtml(appt.dept)}')">Reschedule</button>
+              <button class="btn btn-danger btn-sm" style="font-size:0.8rem;" onclick="cancelAppointment('${appt.id || appt.refId}')">Cancel</button>
+            ` : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function filterAppointments(filterType) {
+  const btns = document.querySelectorAll('#appointment-filter-btns button');
+  btns.forEach(btn => btn.classList.remove('active-filter'));
+
+  const activeBtn = Array.from(btns).find(b => b.textContent.toLowerCase().includes(filterType));
+  if (activeBtn) activeBtn.classList.add('active-filter');
+
+  renderAppointmentsList(filterType);
+}
+
+function cancelAppointment(idOrRef) {
+  if (!confirm('Are you sure you want to cancel this appointment?')) return;
+
+  AppState.appointments = AppState.appointments.map(a => {
+    if (a.id === idOrRef || a.refId === idOrRef) {
+      return { ...a, status: 'Cancelled' };
+    }
+    return a;
+  });
+
+  localStorage.setItem('mediyogi_appointments', JSON.stringify(AppState.appointments));
+  showToast('🔴 Appointment cancelled.');
+  renderAppointmentsList();
 }
 
 /* ==========================================================================
@@ -1614,6 +1795,8 @@ function confirmBooking(hospName) {
    ========================================================================== */
 function initVitalsTracker() {
   updateWaterUI();
+  renderRemindersList();
+  renderAppointmentsList();
 }
 
 function renderVitalsChart() {
@@ -1695,20 +1878,355 @@ function calculateBMI() {
   const heightCm = parseFloat(document.getElementById('bmi-height').value);
   const resultDiv = document.getElementById('bmi-result');
 
-  if (!weight || !heightCm) {
-    resultDiv.textContent = 'Please enter valid height and weight.';
+  if (!resultDiv) return;
+  if (!weight || !heightCm || weight <= 0 || heightCm <= 0) {
+    resultDiv.innerHTML = '<span style="color:var(--danger);">⚠️ Please enter valid weight and height.</span>';
     return;
   }
 
   const heightM = heightCm / 100;
   const bmi = (weight / (heightM * heightM)).toFixed(1);
   let status = 'Normal Weight';
+  let badgeClass = 'badge-success';
+  let advice = '';
 
-  if (bmi < 18.5) status = 'Underweight';
-  else if (bmi >= 25 && bmi < 29.9) status = 'Overweight';
-  else if (bmi >= 30) status = 'Obese';
+  const minNormalWeight = (18.5 * heightM * heightM).toFixed(1);
+  const maxNormalWeight = (24.9 * heightM * heightM).toFixed(1);
 
-  resultDiv.innerHTML = `Your BMI is <strong>${bmi}</strong> (${status})`;
+  if (bmi < 18.5) {
+    status = 'Underweight';
+    badgeClass = 'badge-warning';
+    advice = `Nutrient-dense diet recommended. Ideal weight target: ${minNormalWeight} - ${maxNormalWeight} kg.`;
+  } else if (bmi >= 18.5 && bmi <= 24.9) {
+    status = 'Normal Weight';
+    badgeClass = 'badge-success';
+    advice = `Optimal BMI! Maintain balanced diet and 150 mins weekly exercise. Target: ${minNormalWeight} - ${maxNormalWeight} kg.`;
+  } else if (bmi >= 25 && bmi <= 29.9) {
+    status = 'Overweight';
+    badgeClass = 'badge-warning';
+    advice = `Consider portion control & regular cardio activity. Ideal weight target: ${minNormalWeight} - ${maxNormalWeight} kg.`;
+  } else {
+    status = 'Obese';
+    badgeClass = 'badge-danger';
+    advice = `Consult a clinical specialist. Ideal weight target: ${minNormalWeight} - ${maxNormalWeight} kg.`;
+  }
+
+  resultDiv.innerHTML = `
+    <div class="result-box-card" style="background:var(--bg-glass-light); padding:12px; border-radius:10px; margin-top:8px; border:1px solid var(--border-color);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span style="font-size:1.05rem; font-weight:700; color:var(--text-main);">BMI: ${bmi}</span>
+        <span class="badge ${badgeClass}">${status}</span>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">💡 ${advice}</p>
+    </div>
+  `;
+}
+
+function convertBloodSugar() {
+  const inputEl = document.getElementById('bs-value');
+  const unitEl = document.getElementById('bs-unit');
+  const resultDiv = document.getElementById('bs-result');
+
+  if (!inputEl || !unitEl || !resultDiv) return;
+
+  const rawVal = parseFloat(inputEl.value);
+  if (isNaN(rawVal) || rawVal <= 0) {
+    resultDiv.innerHTML = '<span style="color:var(--danger);">⚠️ Please enter a valid blood sugar value.</span>';
+    return;
+  }
+
+  const unit = unitEl.value;
+  let mgdl, mmol;
+
+  if (unit === 'mg/dL') {
+    mgdl = rawVal;
+    mmol = (rawVal / 18.018).toFixed(2);
+  } else {
+    mmol = rawVal;
+    mgdl = (rawVal * 18.018).toFixed(1);
+  }
+
+  const hba1c = ((parseFloat(mgdl) + 46.7) / 28.7).toFixed(1);
+
+  let statusBadge = '';
+  let advice = '';
+
+  if (mgdl < 70) {
+    statusBadge = '<span class="badge badge-danger">🔴 Hypoglycemia (Low)</span>';
+    advice = 'Blood glucose is low (<70 mg/dL). Consume 15g fast-acting carbohydrates (fruit juice, sugar).';
+  } else if (mgdl <= 99) {
+    statusBadge = '<span class="badge badge-success">🟢 Normal Fasting</span>';
+    advice = 'Optimal blood glucose level. Continue balanced nutrition and routine activity.';
+  } else if (mgdl <= 125) {
+    statusBadge = '<span class="badge badge-warning">🟡 Prediabetes Range</span>';
+    advice = 'Glucose level is elevated. Exercise regularly and limit refined sugar intake.';
+  } else {
+    statusBadge = '<span class="badge badge-danger">🔴 Diabetes Range</span>';
+    advice = 'Glucose is in diabetic range (≥126 mg/dL). Consult your healthcare provider for evaluation.';
+  }
+
+  resultDiv.innerHTML = `
+    <div class="result-box-card" style="background:var(--bg-glass-light); padding:12px; border-radius:10px; margin-top:8px; border:1px solid var(--border-color);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-size:1.05rem; font-weight:700; color:var(--text-main);">${mgdl} mg/dL <span style="font-size:0.82rem; color:var(--text-muted);">(${mmol} mmol/L)</span></span>
+        ${statusBadge}
+      </div>
+      <div style="font-size:0.85rem; margin-bottom:6px; color:var(--secondary); font-weight:600;">
+        📊 Estimated HbA1c: <strong>${hba1c}%</strong>
+      </div>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">💡 ${advice}</p>
+    </div>
+  `;
+}
+
+function calculatePregnancy() {
+  const lmpInput = document.getElementById('preg-last-period');
+  const dueInput = document.getElementById('preg-due-date');
+  const resultDiv = document.getElementById('preg-result');
+
+  if (!resultDiv) return;
+
+  let lmpDate = lmpInput && lmpInput.value ? new Date(lmpInput.value) : null;
+  let dueDate = dueInput && dueInput.value ? new Date(dueInput.value) : null;
+
+  if (!lmpDate && !dueDate) {
+    lmpDate = new Date();
+    lmpDate.setDate(lmpDate.getDate() - 84); // 12 weeks default for instant display
+    if (lmpInput) lmpInput.value = lmpDate.toISOString().split('T')[0];
+  }
+
+  const GESTATION_DAYS = 280;
+
+  if (lmpDate && !dueDate) {
+    dueDate = new Date(lmpDate.getTime() + GESTATION_DAYS * 24 * 60 * 60 * 1000);
+    if (dueInput) dueInput.value = dueDate.toISOString().split('T')[0];
+  } else if (dueDate && !lmpDate) {
+    lmpDate = new Date(dueDate.getTime() - GESTATION_DAYS * 24 * 60 * 60 * 1000);
+    if (lmpInput) lmpInput.value = lmpDate.toISOString().split('T')[0];
+  }
+
+  const today = new Date();
+  const diffTime = today.getTime() - lmpDate.getTime();
+  const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (daysPassed < 0) {
+    resultDiv.innerHTML = '<span style="color:var(--warning);">⚠️ LMP date selected is in the future.</span>';
+    return;
+  }
+
+  const weeks = Math.floor(daysPassed / 7);
+  const days = daysPassed % 7;
+  const progressPct = Math.min(100, Math.max(0, Math.floor((daysPassed / GESTATION_DAYS) * 100)));
+
+  let trimesterBadge = '';
+  let advice = '';
+
+  if (weeks <= 12) {
+    trimesterBadge = '<span class="badge badge-info">🌸 1st Trimester</span>';
+    advice = '1st Trimester (W1-12): Daily Folic Acid (400mcg), early prenatal screen, & hydration.';
+  } else if (weeks <= 26) {
+    trimesterBadge = '<span class="badge badge-success">🌼 2nd Trimester</span>';
+    advice = '2nd Trimester (W13-26): Anomaly ultrasound, iron & calcium supplements, tracking fetal movement.';
+  } else if (weeks <= 40) {
+    trimesterBadge = '<span class="badge badge-warning">🌺 3rd Trimester</span>';
+    advice = '3rd Trimester (W27-40): Fetal kick count logs, hospital bag preparation, and routine NSTs.';
+  } else {
+    trimesterBadge = '<span class="badge badge-danger">🚨 Past Due Date</span>';
+    advice = 'Post-term (W40+): Consult your OB/GYN doctor immediately for fetal surveillance.';
+  }
+
+  const daysRemaining = Math.max(0, Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+  const formattedDue = dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  resultDiv.innerHTML = `
+    <div class="result-box-card" style="background:var(--bg-glass-light); padding:12px; border-radius:10px; margin-top:8px; border:1px solid var(--border-color);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-size:0.95rem; font-weight:700; color:var(--text-main);">🗓️ Due: ${formattedDue}</span>
+        ${trimesterBadge}
+      </div>
+      <div style="font-size:0.85rem; margin-bottom:6px; color:var(--primary); font-weight:600;">
+        👶 Progress: <strong>${weeks} Weeks, ${days} Days</strong> (${progressPct}% complete)
+      </div>
+      <div style="background:rgba(255,255,255,0.06); height:8px; border-radius:4px; overflow:hidden; margin-bottom:8px;">
+        <div style="width:${progressPct}%; height:100%; background:linear-gradient(90deg, var(--primary), var(--secondary)); border-radius:4px;"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--text-muted); margin-bottom:6px;">
+        <span>⏳ ${daysRemaining} days remaining</span>
+        <span>Target: 40 Weeks</span>
+      </div>
+      <p style="font-size:0.78rem; color:var(--text-muted); margin:0;">💡 ${advice}</p>
+    </div>
+  `;
+}
+
+function checkInteractions() {
+  const med1Input = document.getElementById('med1');
+  const med2Input = document.getElementById('med2');
+  const resultDiv = document.getElementById('interaction-result');
+
+  if (!resultDiv) return;
+
+  const m1 = med1Input ? med1Input.value.trim() : '';
+  const m2 = med2Input ? med2Input.value.trim() : '';
+
+  if (!m1 && !m2) {
+    resultDiv.innerHTML = '<span style="color:var(--danger);">⚠️ Please enter at least one medication.</span>';
+    return;
+  }
+
+  if (!m2) {
+    resultDiv.innerHTML = `
+      <div class="result-box-card" style="background:var(--bg-glass-light); padding:12px; border-radius:10px; margin-top:8px; border:1px solid var(--border-color);">
+        <span class="badge badge-success" style="margin-bottom:6px; display:inline-block;">🟢 Single Drug Check</span>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">
+          <strong>${escapeHtml(m1)}</strong> checked. Enter a 2nd medication to run cross-interaction screening.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  const INTERACTION_DATABASE = [
+    {
+      keywords: ['metformin', 'albuterol'],
+      badge: '<span class="badge badge-info">🔵 Low Clinical Risk</span>',
+      title: 'Minor Blood Glucose Modulation',
+      desc: 'Albuterol (beta-2 agonist) may transiently increase blood glucose, slightly opposing Metformin. Monitor glucose levels routinely.'
+    },
+    {
+      keywords: ['aspirin', 'warfarin'],
+      badge: '<span class="badge badge-danger">🔴 High Severe Risk</span>',
+      title: 'Major Hemorrhage & Bleeding Hazard',
+      desc: 'Combined Aspirin and Warfarin significantly raises internal bleeding risk. Requires strict physician supervision and INR monitoring.'
+    },
+    {
+      keywords: ['ibuprofen', 'lisinopril'],
+      badge: '<span class="badge badge-warning">🟡 Moderate Interaction</span>',
+      title: 'Reduced Antihypertensive Response',
+      desc: 'NSAIDs like Ibuprofen can diminish blood pressure control of Lisinopril and increase renal workload.'
+    },
+    {
+      keywords: ['atorvastatin', 'clarithromycin'],
+      badge: '<span class="badge badge-danger">🔴 High Severe Risk</span>',
+      title: 'CYP3A4 Inhibition & Rhabdomyolysis Risk',
+      desc: 'Clarithromycin inhibits statin breakdown, elevating statin levels and risk of severe muscle breakdown.'
+    },
+    {
+      keywords: ['paracetamol', 'alcohol'],
+      badge: '<span class="badge badge-warning">🟡 Moderate Risk</span>',
+      title: 'Increased Hepatotoxicity',
+      desc: 'Regular alcohol with Paracetamol increases toxic NAPQI metabolite formation, stressing liver tissue.'
+    }
+  ];
+
+  const match = INTERACTION_DATABASE.find(item => {
+    const k1 = item.keywords[0];
+    const k2 = item.keywords[1];
+    return (m1.toLowerCase().includes(k1) && m2.toLowerCase().includes(k2)) ||
+           (m1.toLowerCase().includes(k2) && m2.toLowerCase().includes(k1));
+  });
+
+  if (match) {
+    resultDiv.innerHTML = `
+      <div class="result-box-card" style="background:var(--bg-glass-light); padding:12px; border-radius:10px; margin-top:8px; border:1px solid var(--border-color);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="font-size:0.9rem; color:var(--text-main);">${escapeHtml(m1)} + ${escapeHtml(m2)}</strong>
+          ${match.badge}
+        </div>
+        <div style="font-size:0.84rem; font-weight:700; color:var(--warning); margin-bottom:4px;">⚠️ ${match.title}</div>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">${match.desc}</p>
+      </div>
+    `;
+  } else {
+    resultDiv.innerHTML = `
+      <div class="result-box-card" style="background:var(--bg-glass-light); padding:12px; border-radius:10px; margin-top:8px; border:1px solid var(--border-color);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <strong style="font-size:0.9rem; color:var(--text-main);">${escapeHtml(m1)} + ${escapeHtml(m2)}</strong>
+          <span class="badge badge-success">🟢 No Severe Conflict Found</span>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">
+          No high-risk documented drug interactions found between ${escapeHtml(m1)} and ${escapeHtml(m2)}. Always consult your doctor or pharmacist.
+        </p>
+      </div>
+    `;
+  }
+}
+
+function setReminder() {
+  const medEl = document.getElementById('reminder-med');
+  const doseEl = document.getElementById('reminder-dose');
+  const freqEl = document.getElementById('reminder-freq');
+
+  if (!medEl || !doseEl || !freqEl) return;
+
+  const med = medEl.value.trim();
+  const dose = doseEl.value.trim();
+  const freq = parseInt(freqEl.value, 10);
+
+  if (!med || !dose || isNaN(freq) || freq <= 0) {
+    showToast('⚠️ Please enter valid medication name, dose, and frequency.', 'warning');
+    return;
+  }
+
+  if (!AppState.reminders) {
+    AppState.reminders = JSON.parse(localStorage.getItem('mediyogi_reminders')) || [];
+  }
+
+  const now = new Date();
+  const nextTime = new Date(now.getTime() + freq * 60 * 60 * 1000);
+  const timeStr = nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const newReminder = {
+    id: 'rem_' + Date.now(),
+    med,
+    dose,
+    freq,
+    nextTime: timeStr
+  };
+
+  AppState.reminders.push(newReminder);
+  localStorage.setItem('mediyogi_reminders', JSON.stringify(AppState.reminders));
+
+  showToast(`⏰ Medication reminder added for ${med} (${dose})!`);
+  renderRemindersList();
+}
+
+function renderRemindersList() {
+  const resultDiv = document.getElementById('reminder-result');
+  if (!resultDiv) return;
+
+  if (!AppState.reminders) {
+    AppState.reminders = JSON.parse(localStorage.getItem('mediyogi_reminders')) || [];
+  }
+
+  if (AppState.reminders.length === 0) {
+    AppState.reminders = [
+      { id: 'rem_demo_1', med: 'Metformin', dose: '500mg', freq: 8, nextTime: '02:30 PM' }
+    ];
+    localStorage.setItem('mediyogi_reminders', JSON.stringify(AppState.reminders));
+  }
+
+  resultDiv.innerHTML = `
+    <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px; max-height:160px; overflow-y:auto;">
+      ${AppState.reminders.map(rem => `
+        <div style="background:var(--bg-glass-light); padding:8px 12px; border-radius:8px; border:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:700; font-size:0.86rem; color:var(--text-main);">${escapeHtml(rem.med)} <span style="font-size:0.75rem; color:var(--secondary);">(${escapeHtml(rem.dose)})</span></div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Every ${rem.freq}h • Next: <strong>${rem.nextTime}</strong></div>
+          </div>
+          <button class="btn btn-danger btn-sm" style="padding:2px 8px; font-size:0.75rem;" title="Delete Reminder" onclick="deleteReminder('${rem.id}')">🗑️</button>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function deleteReminder(id) {
+  if (!AppState.reminders) return;
+  AppState.reminders = AppState.reminders.filter(r => r.id !== id);
+  localStorage.setItem('mediyogi_reminders', JSON.stringify(AppState.reminders));
+  showToast('🗑️ Reminder deleted');
+  renderRemindersList();
 }
 
 /* ==========================================================================

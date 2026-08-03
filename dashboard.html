@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="website icon" type="jpg" href=".github/White and Blue Illustrative Online Medical Center Logo.jpg">
   <title>Mediyogi Patient Portal Dashboard</title>
   <link rel="stylesheet" href="style.css" />
   <!-- Leaflet Map CSS -->
@@ -47,11 +48,13 @@
       </nav>
 
       <div style="margin-top:auto; display:flex; flex-direction:column; gap:10px;">
-        <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme" style="width:100%;">
+        <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme"
+          style="width:100%;">
           <span class="theme-icon">🌙</span>
           <span class="theme-label">Dark</span>
         </button>
-        <button type="button" onclick="logoutUser()" class="btn btn-danger btn-sm" style="width:100%;">🔴 Logout</button>
+        <button type="button" onclick="logoutUser()" class="btn btn-danger btn-sm" style="width:100%;">🔴
+          Logout</button>
       </div>
     </aside>
 
@@ -112,7 +115,8 @@
               evidence-based algorithms.</p>
           </div>
           <div style="display:flex; gap:10px; align-items:center;">
-            <button type="button" class="btn btn-secondary btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Set Gemini Key</button>
+            <button type="button" class="btn btn-secondary btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Set
+              Gemini Key</button>
             <span class="badge badge-secondary gemini-status-badge">📖 Offline Clinical Mode</span>
             <label style="font-size:0.85rem; color:var(--text-muted);">Language:</label>
             <select id="chat-lang-select" class="form-control" style="width:140px; padding:6px 10px;">
@@ -161,13 +165,15 @@
         <div class="hospital-header-box">
           <div>
             <h3 style="font-size:1.4rem; font-weight:700;">Hospital Radar & ICU Bed Availability</h3>
-            <p style="color:var(--text-muted); font-size:0.9rem;">Find emergency medical centers globally or locally and reserve appointment slots.</p>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Find emergency medical centers globally or locally and
+              reserve appointment slots.</p>
           </div>
           <div class="hospital-search-toolbar">
             <div class="hospital-input-wrapper">
               <input type="text" id="hospital-search" class="form-control"
                 placeholder="Search hospital by name, area, or city..." onkeyup="handleHospitalSearchKeyup(event)" />
-              <button type="button" class="btn-clear-search" id="btn-clear-hospital-search" onclick="clearHospitalSearch()" style="display:none;" title="Clear search">&times;</button>
+              <button type="button" class="btn-clear-search" id="btn-clear-hospital-search"
+                onclick="clearHospitalSearch()" style="display:none;" title="Clear search">&times;</button>
             </div>
             <button class="btn btn-primary" onclick="triggerGlobalHospitalSearch()">🔍 Search Map</button>
             <button class="btn btn-secondary" onclick="locateUserHospitals()" title="Locate near me">📍 Near Me</button>
@@ -178,7 +184,8 @@
 
         <div id="hospital-map"></div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; margin-bottom:10px;">
+        <div
+          style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; margin-bottom:10px;">
           <h4 style="font-size:1.1rem; font-weight:700;">Nearby Hospitals & Medical Facilities</h4>
           <span id="hospital-count-badge" class="badge badge-info">Showing 4 Hospitals</span>
         </div>
@@ -232,15 +239,93 @@
               onclick="calculateBMI()">Calculate BMI</button>
             <div id="bmi-result" style="font-size:0.9rem; color:var(--primary); font-weight:600;"></div>
           </div>
+          <!--Blood Sugar & HbA1c Converter-->
+          <div class="glass-card">
+            <h4 style="margin-bottom:16px;">Blood Sugar & HbA1c Converter</h4>
+            <div class="form-group">
+              <input type="number" id="bs-value" class="form-control" placeholder="Blood Sugar Value" value="120" />
+            </div>
+            <div class="form-group">
+              <select id="bs-unit" class="form-control">
+                <option value="mg/dL">mg/dL (US Standard)</option>
+                <option value="mmol/L">mmol/L (International Standard)</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary btn-sm" style="width:100%; margin-bottom:12px;"
+              onclick="convertBloodSugar()">Convert Sugar Level</button>
+            <div id="bs-result" style="font-size:0.9rem; color:var(--primary); font-weight:600;"></div>
+          </div>
+          <!--Pregnancy Due Date & Trimester Tracker-->
+          <div class="glass-card">
+            <h4 style="margin-bottom:16px;">Pregnancy Due Date & Trimester Tracker</h4>
+            <div class="form-group">
+              <input type="date" id="preg-last-period" class="form-control" placeholder="Last Menstrual Period Date" />
+            </div>
+            <div class="form-group">
+              <input type="date" id="preg-due-date" class="form-control" placeholder="Estimated Due Date" />
+            </div>
+            <button class="btn btn-secondary btn-sm" style="width:100%; margin-bottom:12px;"
+              onclick="calculatePregnancy()">Calculate Pregnancy Info</button>
+            <div id="preg-result" style="font-size:0.9rem; color:var(--primary); font-weight:600;"></div>
+          </div>
+          <!--Medication Interaction Checker-->
+          <div class="glass-card">
+            <h4 style="margin-bottom:16px;">Medication Interaction Checker</h4>
+            <div class="form-group">
+              <label>Medication 1</label>
+              <input type="text" id="med1" class="form-control" placeholder="e.g. Metformin" value="Metformin" />
+            </div>
+            <div class="form-group">
+              <label>Medication 2 (Optional)</label>
+              <input type="text" id="med2" class="form-control" placeholder="e.g. Albuterol" value="" />
+            </div>
+            <button class="btn btn-secondary btn-sm" style="width:100%; margin-bottom:12px;"
+              onclick="checkInteractions()">Check Interactions</button>
+            <div id="interaction-result" style="font-size:0.9rem; color:var(--primary); font-weight:600;"></div>
+          </div>
+          <!--Medication Reminder-->
+          <div class="glass-card">
+            <h4 style="margin-bottom:16px;">Medication Reminder</h4>
+            <div class="form-group">
+              <label>Medication Name</label>
+              <input type="text" id="reminder-med" class="form-control" placeholder="e.g. Metformin"
+                value="Metformin" />
+            </div>
+            <div class="form-group">
+              <label>Dosage</label>
+              <input type="text" id="reminder-dose" class="form-control" placeholder="e.g. 500mg" value="500mg" />
+            </div>
+            <div class="form-group">
+              <label>Frequency (hours)</label>
+              <input type="number" id="reminder-freq" class="form-control" placeholder="e.g. 8" value="8" />
+            </div>
+            <button class="btn btn-secondary btn-sm" style="width:100%; margin-bottom:12px;" onclick="setReminder()">Set
+              Reminder</button>
+            <div id="reminder-result" style="font-size:0.9rem; color:var(--primary); font-weight:600;"></div>
+          </div>
         </div>
       </section>
-
+      <!--SECTION 4:Doctor appointment booking-->
+      <section id="doctor-appointment" class="dashboard-section">
+        <div
+          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h3 style="font-size:1.4rem; font-weight:700;">Doctor Appointment Booking</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Book appointments with doctors and clinics.</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary btn-sm" onclick="openDoctorAppointmentForm()">Book Appointment</button>
+          </div>
+        </div>
+      </section>
       <!-- SECTION 5: PATIENT PROFILE & HEALTH ID -->
       <section id="profile" class="dashboard-section">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div
+          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
           <div>
             <h3 style="font-size:1.4rem; font-weight:700;">Patient Profile & Public Emergency Health ID</h3>
-            <p style="color:var(--text-muted); font-size:0.9rem;">Manage your emergency medical information, ABDM health credentials, and public sharing settings.</p>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Manage your emergency medical information, ABDM health
+              credentials, and public sharing settings.</p>
           </div>
           <div style="display:flex; gap:10px;">
             <button class="btn btn-secondary btn-sm" onclick="openPublicProfileView()">🌐 View Public Profile</button>
@@ -251,10 +336,11 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
           <!-- Profile Form -->
           <div class="glass-card">
-            <h4 style="margin-bottom:16px; font-size:1.1rem; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+            <h4
+              style="margin-bottom:16px; font-size:1.1rem; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
               👤 Personal & Medical Information
             </h4>
-            
+
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
               <div class="form-group">
                 <label>Full Name *</label>
@@ -313,7 +399,8 @@
               </div>
             </div>
 
-            <h4 style="margin:20px 0 14px; font-size:1.05rem; border-bottom:1px solid var(--border-color); padding-bottom:10px; color:var(--warning);">
+            <h4
+              style="margin:20px 0 14px; font-size:1.05rem; border-bottom:1px solid var(--border-color); padding-bottom:10px; color:var(--warning);">
               🚨 Emergency Medical Details
             </h4>
 
@@ -330,66 +417,94 @@
 
             <div class="form-group">
               <label>Known Allergies (Severe / Critical)</label>
-              <input type="text" id="prof-allergies" class="form-control" placeholder="e.g. Penicillin, Peanuts, Latex" />
+              <input type="text" id="prof-allergies" class="form-control"
+                placeholder="e.g. Penicillin, Peanuts, Latex" />
             </div>
 
             <div class="form-group">
               <label>Chronic Medical Conditions</label>
-              <input type="text" id="prof-conditions" class="form-control" placeholder="e.g. Asthma, Type 2 Diabetes, Hypertension" />
+              <input type="text" id="prof-conditions" class="form-control"
+                placeholder="e.g. Asthma, Type 2 Diabetes, Hypertension" />
             </div>
 
             <div class="form-group">
               <label>Current Daily Medications</label>
-              <input type="text" id="prof-medications" class="form-control" placeholder="e.g. Albuterol 100mcg, Metformin 500mg" />
+              <input type="text" id="prof-medications" class="form-control"
+                placeholder="e.g. Albuterol 100mcg, Metformin 500mg" />
             </div>
 
-            <div style="margin:16px 0 20px; background:rgba(255,255,255,0.03); padding:12px; border-radius:10px; border:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between;">
+            <div
+              style="margin:16px 0 20px; background:rgba(255,255,255,0.03); padding:12px; border-radius:10px; border:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between;">
               <div>
                 <strong style="font-size:0.9rem; display:block;">Enable Public Emergency Access</strong>
-                <span style="font-size:0.8rem; color:var(--text-muted);">Allow first responders to scan QR code & view emergency profile</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">Allow first responders to scan QR code & view
+                  emergency profile</span>
               </div>
               <label class="switch" style="position:relative; display:inline-block; width:44px; height:24px;">
                 <input type="checkbox" id="prof-public-toggle" checked style="opacity:0; width:0; height:0;" />
-                <span class="slider" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#334155; transition:.3s; border-radius:24px;"></span>
+                <span class="slider"
+                  style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#334155; transition:.3s; border-radius:24px;"></span>
               </label>
             </div>
 
-            <button class="btn btn-primary" style="width:100%;" onclick="saveUserProfile()">💾 Save Profile & Sync Emergency Card</button>
+            <button class="btn btn-primary" style="width:100%;" onclick="saveUserProfile()">💾 Save Profile & Sync
+              Emergency Card</button>
           </div>
 
           <!-- ABDM Health Card Preview -->
           <div style="display:flex; flex-direction:column; gap:20px;">
-            <div class="glass-card" style="background:linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.12) 100%); border:1px solid rgba(16,185,129,0.3); position:relative; overflow:hidden;">
-              <div style="position:absolute; top:-20px; right:-20px; width:120px; height:120px; background:rgba(16,185,129,0.1); border-radius:50%; filter:blur(20px);"></div>
-              
+            <div class="glass-card"
+              style="background:linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.12) 100%); border:1px solid rgba(16,185,129,0.3); position:relative; overflow:hidden;">
+              <div
+                style="position:absolute; top:-20px; right:-20px; width:120px; height:120px; background:rgba(16,185,129,0.1); border-radius:50%; filter:blur(20px);">
+              </div>
+
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <div>
-                  <span style="font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--primary);">Ayushman Bharat Digital Health ID</span>
-                  <div style="font-size:0.75rem; color:var(--text-muted);">National Health Authority • Verified 🇮🇳</div>
+                  <span
+                    style="font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--primary);">Ayushman
+                    Bharat Digital Health ID</span>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">National Health Authority • Verified 🇮🇳
+                  </div>
                 </div>
                 <span id="card-public-status" class="badge badge-success">🟢 Public Access Active</span>
               </div>
 
-              <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">
-                <div id="card-avatar" class="avatar" style="width:60px; height:60px; font-size:1.5rem; background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color:#fff; border-radius:16px; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 4px 15px var(--primary-glow);">PV</div>
+              <div
+                style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                <div id="card-avatar" class="avatar"
+                  style="width:60px; height:60px; font-size:1.5rem; background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color:#fff; border-radius:16px; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 4px 15px var(--primary-glow);">
+                  PV</div>
                 <div>
                   <h3 id="card-user-name" style="font-size:1.4rem; font-weight:800; color:#fff;">Priya Verma</h3>
-                  <p id="card-health-id" style="font-size:1.05rem; font-family:monospace; color:var(--secondary); font-weight:700; margin-top:2px;">ABDM-91-8420-1129-90</p>
+                  <p id="card-health-id"
+                    style="font-size:1.05rem; font-family:monospace; color:var(--secondary); font-weight:700; margin-top:2px;">
+                    ABDM-91-8420-1129-90</p>
                 </div>
               </div>
 
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; font-size:0.88rem; margin-bottom:20px;">
-                <div><span style="color:var(--text-muted);">Gender:</span> <strong id="card-gender" style="color:#fff;">Female</strong></div>
-                <div><span style="color:var(--text-muted);">Year of Birth:</span> <strong id="card-yob" style="color:#fff;">1998</strong></div>
-                <div><span style="color:var(--text-muted);">Blood Group:</span> <strong id="card-blood" style="color:var(--danger); font-weight:800;">O+ Positive</strong></div>
-                <div><span style="color:var(--text-muted);">Organ Donor:</span> <strong id="card-organ-donor" style="color:var(--primary);">Yes</strong></div>
-                <div style="grid-column:span 2;"><span style="color:var(--text-muted);">Emergency Contact:</span> <strong id="card-emergency" style="color:var(--warning);">Rajesh Verma (+91 98765 43211)</strong></div>
+              <div
+                style="display:grid; grid-template-columns:1fr 1fr; gap:14px; font-size:0.88rem; margin-bottom:20px;">
+                <div><span style="color:var(--text-muted);">Gender:</span> <strong id="card-gender"
+                    style="color:#fff;">Female</strong></div>
+                <div><span style="color:var(--text-muted);">Year of Birth:</span> <strong id="card-yob"
+                    style="color:#fff;">1998</strong></div>
+                <div><span style="color:var(--text-muted);">Blood Group:</span> <strong id="card-blood"
+                    style="color:var(--danger); font-weight:800;">O+ Positive</strong></div>
+                <div><span style="color:var(--text-muted);">Organ Donor:</span> <strong id="card-organ-donor"
+                    style="color:var(--primary);">Yes</strong></div>
+                <div style="grid-column:span 2;"><span style="color:var(--text-muted);">Emergency Contact:</span>
+                  <strong id="card-emergency" style="color:var(--warning);">Rajesh Verma (+91 98765 43211)</strong>
+                </div>
               </div>
 
-              <div style="background:rgba(11,15,25,0.7); border-radius:14px; padding:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; border:1px solid var(--border-color);">
+              <div
+                style="background:rgba(11,15,25,0.7); border-radius:14px; padding:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; border:1px solid var(--border-color);">
                 <div>
-                  <strong style="font-size:0.9rem; display:block; color:#fff; margin-bottom:4px;">Emergency QR Scan</strong>
-                  <p style="font-size:0.8rem; color:var(--text-muted);">Scan with smartphone camera for instant responder access.</p>
+                  <strong style="font-size:0.9rem; display:block; color:#fff; margin-bottom:4px;">Emergency QR
+                    Scan</strong>
+                  <p style="font-size:0.8rem; color:var(--text-muted);">Scan with smartphone camera for instant
+                    responder access.</p>
                 </div>
                 <div class="qr-code-box" style="flex-shrink:0;"></div>
               </div>
