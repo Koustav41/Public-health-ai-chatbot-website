@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mediyogi AI — Standalone Public Health AI Assistant</title>
+  <title>Mediyogi AI — Next-Gen Public Health Companion & AI Triage</title>
+  <link rel="website icon" type="jpg" href=".github/White and Blue Illustrative Online Medical Center Logo.jpg">
   <link rel="stylesheet" href="style.css" />
   <script>
     (function () {
@@ -21,21 +23,33 @@
       grid-template-columns: 1fr 340px;
       gap: 24px;
     }
+
     @media (max-width: 900px) {
-      .ai-workspace-wrap { grid-template-columns: 1fr; padding: 16px; }
+      .ai-workspace-wrap {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <div style="max-width:1280px; margin:0 auto; padding:20px 40px 0;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-      <div style="display:flex; gap:10px; align-items:center;">
+    <div
+      style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
         <a href="dashboard.html" class="btn btn-secondary btn-sm">← Back to Patient Dashboard</a>
         <a href="profile.html" class="btn btn-secondary btn-sm">👤 Emergency Profile</a>
         <button type="button" class="btn btn-danger btn-sm" onclick="logoutUser()">🔴 Logout</button>
       </div>
-      <div style="display:flex; gap:10px; align-items:center;">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <span class="badge badge-info"
+          style="font-family:monospace; font-size:0.78rem; max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer;"
+          onclick="navigator.clipboard.writeText('AQ.DEMO_KEY_PUBLIC_HEALTH_BOT_12345'); alert('API Key copied to clipboard!');"
+          title="Click to copy API Key">
+          📋 Key: AQ.DEMO_KEY...
+        </span>
         <span class="badge badge-danger">🔥 Outbreak Alert: Dengue</span>
         <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
           <span class="theme-icon">🌙</span>
@@ -53,7 +67,8 @@
   <div class="ai-workspace-wrap">
     <!-- MAIN CHAT COLUMN -->
     <main class="glass-card chat-container" style="height:calc(100vh - 140px); padding:0; overflow:hidden;">
-      <div style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; background:var(--bg-input);">
+      <div
+        style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; background:var(--bg-input);">
         <div style="display:flex; align-items:center; gap:12px;">
           <div class="brand-icon">🤖</div>
           <div>
@@ -62,20 +77,23 @@
           </div>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
-          <button type="button" class="btn btn-secondary btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Set Gemini Key</button>
+          <button type="button" class="btn btn-secondary btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Set
+            Gemini Key</button>
           <span class="badge badge-secondary gemini-status-badge">📖 Offline Clinical Mode</span>
         </div>
       </div>
 
       <div id="chat-messages" class="chat-box">
         <div class="chat-message bot">
-          <div>Hi Priya 👋 I am Mediyogi AI HealthBot. Ask me about symptoms, vaccine schedules, or public health alerts.</div>
+          <div>Hi Priya 👋 I am Mediyogi AI HealthBot. Ask me about symptoms, vaccine schedules, or public health
+            alerts.</div>
         </div>
       </div>
 
       <div class="chat-composer">
         <div class="composer-input-row">
-          <input type="text" id="chat-input" class="form-control" placeholder="Ask about fever, symptoms, vaccines..." onkeypress="if(event.key==='Enter') sendChatMessage()" />
+          <input type="text" id="chat-input" class="form-control" placeholder="Ask about fever, symptoms, vaccines..."
+            onkeypress="if(event.key==='Enter') sendChatMessage()" />
           <button id="mic-btn" class="btn btn-secondary">🎙️ Speak</button>
           <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
         </div>
@@ -88,16 +106,20 @@
       <div class="glass-card">
         <h4 style="margin-bottom:12px;">Quick Clinical Topics</h4>
         <div style="display:flex; flex-direction:column; gap:8px;">
-          <button class="btn btn-secondary btn-sm" style="justify-content:flex-start; text-align:left;" onclick="sendChatMessage('Dengue symptoms and prevention')">🦟 Dengue Symptoms & Protection</button>
-          <button class="btn btn-secondary btn-sm" style="justify-content:flex-start; text-align:left;" onclick="sendChatMessage('High fever precautions')">🤒 High Fever & ORS Precautions</button>
-          <button class="btn btn-secondary btn-sm" style="justify-content:flex-start; text-align:left;" onclick="sendChatMessage('Child immunization vaccines')">👶 Child Vaccine Schedule</button>
+          <button class="btn btn-secondary btn-sm" style="justify-content:flex-start; text-align:left;"
+            onclick="sendChatMessage('Dengue symptoms and prevention')">🦟 Dengue Symptoms & Protection</button>
+          <button class="btn btn-secondary btn-sm" style="justify-content:flex-start; text-align:left;"
+            onclick="sendChatMessage('High fever precautions')">🤒 High Fever & ORS Precautions</button>
+          <button class="btn btn-secondary btn-sm" style="justify-content:flex-start; text-align:left;"
+            onclick="sendChatMessage('Child immunization vaccines')">👶 Child Vaccine Schedule</button>
         </div>
       </div>
 
       <!-- Symptom Wizard Launcher -->
       <div class="glass-card">
         <h4 style="margin-bottom:8px;">Interactive Symptom Checker</h4>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">Answer 4 simple questions for immediate clinical risk assessment.</p>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:12px;">Answer 4 simple questions for
+          immediate clinical risk assessment.</p>
         <button id="start-symptom-wizard" class="btn btn-primary btn-sm" style="width:100%;">Start Quiz Wizard</button>
       </div>
 
@@ -120,4 +142,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>
