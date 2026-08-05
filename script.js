@@ -166,10 +166,10 @@ function updateThemeToggleUI(theme) {
     const isLight = theme === 'light';
     btn.setAttribute('aria-label', isLight ? 'Switch to Dark Theme' : 'Switch to Light Theme');
     btn.setAttribute('title', isLight ? 'Switch to Dark Theme' : 'Switch to Light Theme');
-    
+
     const iconSpan = btn.querySelector('.theme-icon');
     const labelSpan = btn.querySelector('.theme-label');
-    
+
     if (iconSpan) {
       iconSpan.textContent = isLight ? '☀️' : '🌙';
     }
@@ -182,7 +182,7 @@ function updateThemeToggleUI(theme) {
 function initTheme() {
   const currentTheme = getPreferredTheme();
   applyTheme(currentTheme);
-  
+
   const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
   toggleBtns.forEach(btn => {
     btn.onclick = (e) => {
@@ -196,6 +196,25 @@ function initTheme() {
       applyTheme(e.newValue);
     }
   });
+}
+
+/* ==========================================================================
+   GLOBAL MODAL SYSTEM
+   ========================================================================== */
+function openModal(modalId) {
+  const modal = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
+  if (modal) {
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+  }
+}
+
+function closeModal(modalId) {
+  const modal = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
+  if (modal) {
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+  }
 }
 
 // UI & Navigation Switching
@@ -216,10 +235,14 @@ function showSection(sectionId) {
     }
   });
 
-  // Re-render chart if switching to vitals
+  // Re-render chart if switching to vitals or resize map on hospitals
   if (sectionId === 'vitals') {
     setTimeout(renderVitalsChart, 100);
     renderRemindersList();
+  } else if (sectionId === 'hospitals') {
+    setTimeout(() => {
+      if (leafletMap) leafletMap.invalidateSize();
+    }, 150);
   } else if (sectionId === 'doctor-appointment') {
     renderAppointmentsList();
   }
@@ -1206,9 +1229,51 @@ function escapeHtml(str) {
 }
 
 let leafletMap = null;
+let currentTileLayer = null;
 let hospitalMarkers = [];
 let userLocationMarker = null;
 let activeHospitalsList = [];
+
+let currentMapProvider = localStorage.getItem('mediyogi_map_provider') || 'google-roadmap';
+let googleApiKey = localStorage.getItem('mediyogi_gmaps_key') || 'https://serpapi.com/search?engine=google_maps';
+
+function extractGoogleApiKey(inputStr) {
+  if (!inputStr) return '';
+  const trimmed = inputStr.trim();
+  if (trimmed.includes('key=')) {
+    const match = trimmed.match(/key=([A-Za-z0-9_\-]+)/);
+    if (match && match[1]) return match[1];
+  }
+  return trimmed;
+}
+
+const MAP_PROVIDERS = {
+  'google-roadmap': {
+    url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+    maxZoom: 20,
+    attribution: '&copy; Google Maps'
+  },
+  'google-satellite': {
+    url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+    maxZoom: 20,
+    attribution: '&copy; Google Maps Imagery'
+  },
+  'google-hybrid': {
+    url: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+    maxZoom: 20,
+    attribution: '&copy; Google Maps Hybrid'
+  },
+  'google-terrain': {
+    url: 'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
+    maxZoom: 20,
+    attribution: '&copy; Google Maps Terrain'
+  },
+  'osm': {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  }
+};
 
 const DEFAULT_HOSPITALS_DATA = [
   { id: 'hosp-1', name: 'AIIMS New Delhi', lat: 28.5672, lng: 77.2100, beds: 18, emergency: true, rating: '4.9 ⭐', dist: '1.2 km', address: 'Sri Aurobindo Marg, Ansari Nagar, New Delhi' },
@@ -1219,16 +1284,86 @@ const DEFAULT_HOSPITALS_DATA = [
   { id: 'hosp-6', name: 'Metro General Hospital', lat: 28.5800, lng: 77.2200, beds: 6, emergency: true, rating: '4.4 ⭐', dist: '2.5 km', address: 'Rohini, New Delhi' }
 ];
 
+function getGoogleMapsDirectionsUrl(lat, lng, name) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=${encodeURIComponent(name || 'Hospital')}`;
+}
+
+function openCurrentAreaInGoogleMaps() {
+  if (leafletMap) {
+    const center = leafletMap.getCenter();
+    const zoom = leafletMap.getZoom();
+    window.open(`https://www.google.com/maps/@${center.lat},${center.lng},${zoom}z`, '_blank');
+  } else {
+    window.open(`https://www.google.com/maps/search/hospitals/@28.5672,77.2100,13z`, '_blank');
+  }
+}
+
+function openGoogleApiKeyModal() {
+  const keyInput = document.getElementById('gmaps-api-key');
+  if (keyInput) {
+    keyInput.value = googleApiKey;
+  }
+  openModal('gmaps-modal');
+}
+
+function saveGoogleApiKey() {
+  const keyInput = document.getElementById('gmaps-api-key');
+  if (!keyInput) return;
+
+  const rawVal = keyInput.value.trim();
+  const extractedKey = extractGoogleApiKey(rawVal);
+
+  if (extractedKey) {
+    googleApiKey = extractedKey;
+    localStorage.setItem('mediyogi_gmaps_key', googleApiKey);
+    closeModal('gmaps-modal');
+    alert(`✅ Google Maps API Key saved! Configuration updated.`);
+    if (typeof initHospitalRadar === 'function') {
+      initHospitalRadar();
+    }
+  } else {
+    googleApiKey = '';
+    localStorage.removeItem('mediyogi_gmaps_key');
+    closeModal('gmaps-modal');
+    alert('ℹ️ API Key cleared. Using default high-definition Google Maps layer.');
+  }
+}
+
+function switchMapProvider(providerKey) {
+  if (!MAP_PROVIDERS[providerKey]) return;
+  currentMapProvider = providerKey;
+  localStorage.setItem('mediyogi_map_provider', providerKey);
+
+  if (leafletMap) {
+    if (currentTileLayer) {
+      leafletMap.removeLayer(currentTileLayer);
+    }
+    const config = MAP_PROVIDERS[providerKey];
+    currentTileLayer = L.tileLayer(config.url, {
+      maxZoom: config.maxZoom,
+      attribution: config.attribution
+    }).addTo(leafletMap);
+  }
+}
+
 function initHospitalRadar() {
   activeHospitalsList = [...DEFAULT_HOSPITALS_DATA];
   renderHospitalList(activeHospitalsList);
+
+  const providerSelect = document.getElementById('map-provider-select');
+  if (providerSelect) {
+    providerSelect.value = currentMapProvider;
+  }
 
   setTimeout(() => {
     const mapContainer = document.getElementById('hospital-map');
     if (mapContainer && window.L && !leafletMap) {
       leafletMap = L.map('hospital-map').setView([28.5672, 77.2100], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+
+      const config = MAP_PROVIDERS[currentMapProvider] || MAP_PROVIDERS['google-roadmap'];
+      currentTileLayer = L.tileLayer(config.url, {
+        maxZoom: config.maxZoom,
+        attribution: config.attribution
       }).addTo(leafletMap);
 
       updateMapMarkers(activeHospitalsList);
@@ -1254,8 +1389,11 @@ function updateMapMarkers(list) {
       <div class="hospital-popup-card">
         <h4>${escapeHtml(hosp.name)}</h4>
         <p>📍 ${escapeHtml(hosp.address || 'Medical Facility')}</p>
-        <p style="color:#10b981; font-weight:600; margin-bottom:8px;">🛏️ ${hosp.beds} Free ICU Beds • ${hosp.rating}</p>
-        <button class="btn btn-primary btn-sm" style="width:100%; padding:6px 10px; font-size:0.8rem;" onclick="openBookingModal('${escapeHtml(hosp.name)}')">Book Appointment</button>
+        <p style="color:#10b981; font-weight:600; margin-bottom:10px;">🛏️ ${hosp.beds} Free ICU Beds • ${hosp.rating}</p>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button class="btn btn-primary btn-sm" style="width:100%; padding:6px 10px; font-size:0.8rem;" onclick="openBookingModal('${escapeHtml(hosp.name)}')">Book Appointment</button>
+          <a href="${getGoogleMapsDirectionsUrl(hosp.lat, hosp.lng, hosp.name)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="width:100%; padding:6px 10px; font-size:0.8rem; text-align:center; display:inline-flex; align-items:center; justify-content:center; gap:4px;">🗺️ Google Maps Directions ↗</a>
+        </div>
       </div>
     `;
 
@@ -1310,9 +1448,10 @@ function renderHospitalList(list) {
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <span style="font-size:0.85rem; color:var(--success); font-weight:600;">🛏️ ${h.beds} ICU Beds Available</span>
       </div>
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-primary btn-sm" style="flex:1;" onclick="event.stopPropagation(); openBookingModal('${escapeHtml(h.name)}')">Book Instant Appointment</button>
-        <button class="btn btn-secondary btn-sm" title="Focus on map" onclick="event.stopPropagation(); focusHospitalOnMap(${idx})">📍 Map</button>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" style="flex:1; min-width:130px;" onclick="event.stopPropagation(); openBookingModal('${escapeHtml(h.name)}')">Book Appointment</button>
+        <button class="btn btn-secondary btn-sm" title="Focus on map" onclick="event.stopPropagation(); focusHospitalOnMap(${idx})">📍 Focus</button>
+        <a href="${getGoogleMapsDirectionsUrl(h.lat, h.lng, h.name)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="Get Driving Directions on Google Maps" onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; gap:4px;">🗺️ Directions ↗</a>
       </div>
     </div>
   `).join('');
@@ -2123,7 +2262,7 @@ function checkInteractions() {
     const k1 = item.keywords[0];
     const k2 = item.keywords[1];
     return (m1.toLowerCase().includes(k1) && m2.toLowerCase().includes(k2)) ||
-           (m1.toLowerCase().includes(k2) && m2.toLowerCase().includes(k1));
+      (m1.toLowerCase().includes(k2) && m2.toLowerCase().includes(k1));
   });
 
   if (match) {

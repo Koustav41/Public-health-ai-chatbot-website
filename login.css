@@ -38,7 +38,7 @@
 
 .auth-tab.active {
   background: var(--primary);
-  color: white;
+  color: #ffffff !important;
   box-shadow: 0 4px 12px var(--primary-glow);
 }
 
