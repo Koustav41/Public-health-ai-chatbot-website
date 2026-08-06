@@ -35,9 +35,8 @@
 
 <body>
 
-  <div style="max-width:1280px; margin:0 auto; padding:20px 40px 0;">
-    <div
-      style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+  <div class="ai-top-bar">
+    <div class="ai-top-bar-inner">
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
         <a href="dashboard.html" class="btn btn-secondary btn-sm">← Back to Patient Dashboard</a>
         <a href="profile.html" class="btn btn-secondary btn-sm">👤 Emergency Profile</a>
@@ -68,7 +67,7 @@
     <!-- MAIN CHAT COLUMN -->
     <main class="glass-card chat-container" style="height:calc(100vh - 140px); padding:0; overflow:hidden;">
       <div
-        style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; background:var(--bg-input);">
+        style="padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; background:var(--bg-input); flex-wrap:wrap; gap:10px;">
         <div style="display:flex; align-items:center; gap:12px;">
           <div class="brand-icon">🤖</div>
           <div>
@@ -76,7 +75,7 @@
             <p style="font-size:0.8rem; color:var(--text-muted);">Preventive Triage & Outbreak Advisory Engine</p>
           </div>
         </div>
-        <div style="display:flex; gap:10px; align-items:center;">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
           <button type="button" class="btn btn-secondary btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Set
             Gemini Key</button>
           <span class="badge badge-secondary gemini-status-badge">📖 Offline Clinical Mode</span>

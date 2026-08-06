@@ -87,7 +87,7 @@
 
       <!-- SECTION 1: SMART REPORTS & EHR -->
       <section id="reports" class="dashboard-section active">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div class="responsive-flex-row">
           <div>
             <h3 style="font-size:1.4rem; font-weight:700;">Diagnostic Reports & Smart EHR</h3>
             <p style="color:var(--text-muted); font-size:0.9rem;">AI OCR automatically extracts lab values and
@@ -108,13 +108,13 @@
 
       <!-- SECTION 2: AI HEALTH ASSISTANT -->
       <section id="chat" class="dashboard-section">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div class="responsive-flex-row" style="margin-bottom:16px;">
           <div>
             <h3 style="font-size:1.4rem; font-weight:700;">Multilingual AI Health Assistant</h3>
             <p style="color:var(--text-muted); font-size:0.9rem;">Get instant clinical guidance powered by
               evidence-based algorithms.</p>
           </div>
-          <div style="display:flex; gap:10px; align-items:center;">
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
             <button type="button" class="btn btn-secondary btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Set
               Gemini Key</button>
             <span class="badge badge-secondary gemini-status-badge">📖 Offline Clinical Mode</span>
@@ -345,8 +345,7 @@
       </section>
       <!-- SECTION 5: PATIENT PROFILE & HEALTH ID -->
       <section id="profile" class="dashboard-section">
-        <div
-          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div class="responsive-flex-row">
           <div>
             <h3 style="font-size:1.4rem; font-weight:700;">Patient Profile & Public Emergency Health ID</h3>
             <p style="color:var(--text-muted); font-size:0.9rem;">Manage your emergency medical information, ABDM health
@@ -358,7 +357,7 @@
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+        <div class="profile-grid-container">
           <!-- Profile Form -->
           <div class="glass-card">
             <h4
@@ -366,7 +365,7 @@
               👤 Personal & Medical Information
             </h4>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="form-row-2col">
               <div class="form-group">
                 <label>Full Name *</label>
                 <input type="text" id="prof-name" class="form-control" placeholder="e.g. Priya Verma" />
@@ -377,7 +376,7 @@
               </div>
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+            <div class="form-row-3col">
               <div class="form-group">
                 <label>Phone Number</label>
                 <input type="text" id="prof-phone" class="form-control" placeholder="+91 98765 43210" />
@@ -397,7 +396,7 @@
               </div>
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+            <div class="form-row-3col">
               <div class="form-group">
                 <label>Blood Group</label>
                 <select id="prof-blood" class="form-control">
@@ -429,7 +428,7 @@
               🚨 Emergency Medical Details
             </h4>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="form-row-2col">
               <div class="form-group">
                 <label>Emergency Contact Name</label>
                 <input type="text" id="prof-emergency-name" class="form-control" placeholder="Name & Relation" />
@@ -536,7 +535,7 @@
             </div>
 
             <!-- Quick Action Hub -->
-            <div class="glass-card" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="glass-card quick-action-hub-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
               <button class="btn btn-secondary" onclick="openPublicProfileView()">
                 🌐 Launch Public Profile
               </button>
