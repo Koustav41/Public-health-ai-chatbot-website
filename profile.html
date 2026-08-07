@@ -122,14 +122,14 @@
 <body>
 
   <!-- NAVIGATION HEADER -->
-  <nav class="landing-nav no-print" style="max-width:1000px; margin:0 auto; padding:20px;">
+  <nav class="landing-nav profile-nav no-print">
     <a href="index.html" class="brand">
       <div class="brand-icon">🩺</div>
       <span>Mediyogi <span
           style="color:var(--primary); font-size:0.8rem; border:1px solid var(--primary); padding:2px 8px; border-radius:12px;">AI
           Emergency</span></span>
     </a>
-    <div style="display:flex; gap:12px; align-items:center;">
+    <div class="profile-nav-actions">
       <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
         <span class="theme-icon">🌙</span>
         <span class="theme-label">Dark</span>
@@ -143,12 +143,11 @@
   <main class="profile-page-container">
 
     <!-- EMERGENCY RESPONDER TOP ALERT -->
-    <div class="no-print"
-      style="background:rgba(244,63,94,0.15); border:1px solid var(--danger); padding:16px 20px; border-radius:var(--radius-md); margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-      <div style="display:flex; align-items:center; gap:12px;">
-        <span style="font-size:1.6rem;">🚨</span>
+    <div class="no-print profile-alert-banner">
+      <div class="profile-alert-banner-left">
+        <span style="font-size:1.6rem; flex-shrink:0;">🚨</span>
         <div>
-          <strong style="color:#ffffff; font-size:1.05rem;">Verified Public Emergency Health Profile</strong>
+          <strong style="color:var(--text-main); font-size:1.05rem;">Verified Public Emergency Health Profile</strong>
           <p style="color:var(--text-muted); font-size:0.88rem;">Authorized for emergency medical responders,
             physicians, and paramedics.</p>
         </div>
@@ -158,18 +157,17 @@
 
     <!-- MAIN HERO PATIENT EMERGENCY CARD -->
     <section class="emergency-hero-card">
-      <div
-        style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:20px; margin-bottom:24px;">
-        <div style="display:flex; align-items:center; gap:20px;">
+      <div class="profile-hero-header">
+        <div class="profile-hero-left">
           <div id="pub-avatar" class="avatar"
-            style="width:80px; height:80px; font-size:2.2rem; background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color:#fff; border-radius:24px; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 8px 25px var(--primary-glow); border:2px solid rgba(255,255,255,0.2);">
+            style="width:80px; height:80px; font-size:2.2rem; background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color:#fff; border-radius:24px; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 8px 25px var(--primary-glow); border:2px solid rgba(255,255,255,0.2); flex-shrink:0;">
             PV</div>
           <div>
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
-              <h1 id="pub-name" style="font-size:2rem; font-weight:800; color:#ffffff;">Priya Verma</h1>
+            <div class="profile-hero-title-row">
+              <h1 id="pub-name">Priya Verma</h1>
               <span id="pub-organ" class="badge badge-info" style="font-size:0.8rem;">🫀 Organ Donor</span>
             </div>
-            <p style="font-size:1.1rem; font-family:monospace; color:var(--secondary); font-weight:700;">
+            <p style="font-size:1.1rem; font-family:monospace; color:var(--secondary); font-weight:700; word-break:break-all;">
               ABDM Health ID: <span id="pub-health-id">ABDM-91-8420-1129-90</span>
             </p>
             <div style="font-size:0.88rem; color:var(--text-muted); margin-top:4px;">
@@ -178,7 +176,7 @@
           </div>
         </div>
 
-        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+        <div class="profile-hero-right">
           <div class="blood-badge">
             <span>🩸</span> <span id="pub-blood">O+ POSITIVE</span>
           </div>
@@ -187,8 +185,7 @@
       </div>
 
       <!-- Quick Emergency Responder Actions -->
-      <div class="no-print"
-        style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1);">
+      <div class="no-print profile-hero-actions">
         <a id="pub-call-btn" href="tel:+919876543211" class="btn btn-primary"
           style="background:var(--danger); border:none; box-shadow:0 4px 15px rgba(244,63,94,0.4);">
           📞 Call Emergency Contact
@@ -203,7 +200,7 @@
     </section>
 
     <!-- CRITICAL MEDICAL INFORMATION GRID -->
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;">
+    <div class="profile-grid-2col">
 
       <!-- Critical Allergies & Conditions Card -->
       <div class="glass-card" style="border-left:4px solid var(--danger);">
@@ -215,7 +212,7 @@
         <div style="display:flex; flex-direction:column; gap:14px;">
           <div class="info-pill" style="border-color:rgba(244,63,94,0.3); background:rgba(244,63,94,0.05);">
             <label style="color:var(--danger); font-weight:700;">Severe Allergies</label>
-            <strong id="pub-allergies" style="color:#ffffff;">Dust, Penicillin</strong>
+            <strong id="pub-allergies" style="color:var(--text-main);">Dust, Penicillin</strong>
           </div>
 
           <div class="info-pill">
@@ -237,7 +234,7 @@
           📞 Emergency Contact & Personal Details
         </h3>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+        <div class="profile-info-grid-2col">
           <div class="info-pill">
             <label>Emergency Contact</label>
             <strong id="pub-emergency-name">Rajesh Verma (Father)</strong>
@@ -264,12 +261,12 @@
     </div>
 
     <!-- CLINICAL DIAGNOSTICS & RECENT VITALS -->
-    <div style="display:grid; grid-template-columns:2fr 1fr; gap:24px; margin-bottom:24px;">
+    <div class="profile-grid-main-side">
 
       <!-- Diagnostic EHR Summary -->
       <div class="glass-card">
         <h3
-          style="font-size:1.2rem; font-weight:700; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;">
+          style="font-size:1.2rem; font-weight:700; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
           <span>🧪 Diagnostic Biomarkers & Recent Lab Reports</span>
           <span class="badge badge-info" style="font-weight:normal;">Synced with Smart EHR</span>
         </h3>
