@@ -43,12 +43,7 @@
         <button type="button" class="btn btn-danger btn-sm" onclick="logoutUser()">🔴 Logout</button>
       </div>
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-        <span class="badge badge-info"
-          style="font-family:monospace; font-size:0.78rem; max-width:340px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer;"
-          onclick="navigator.clipboard.writeText('AQ.DEMO_KEY_PUBLIC_HEALTH_BOT_12345'); alert('API Key copied to clipboard!');"
-          title="Click to copy API Key">
-          📋 Key: AQ.DEMO_KEY...
-        </span>
+        <button type="button" class="btn btn-secondary btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Set Gemini Key</button>
         <span class="badge badge-danger">🔥 Outbreak Alert: Dengue</span>
         <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
           <span class="theme-icon">🌙</span>

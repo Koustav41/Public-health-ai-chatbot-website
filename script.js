@@ -95,7 +95,8 @@ const AppState = {
   ],
   waterGlasses: parseInt(localStorage.getItem('mediyogi_water')) || 5,
   appointments: JSON.parse(localStorage.getItem('mediyogi_appointments')) || [],
-  currentLang: 'en'
+  currentLang: 'en',
+  geminiApiKey: ''
 };
 
 // Multilingual Dictionary & AI Response Engine
@@ -1235,7 +1236,7 @@ let userLocationMarker = null;
 let activeHospitalsList = [];
 
 let currentMapProvider = localStorage.getItem('mediyogi_map_provider') || 'google-roadmap';
-let googleApiKey = localStorage.getItem('mediyogi_gmaps_key') || 'https://serpapi.com/search?engine=google_maps';
+let googleApiKey = localStorage.getItem('mediyogi_gmaps_key') || '';
 
 function extractGoogleApiKey(inputStr) {
   if (!inputStr) return '';

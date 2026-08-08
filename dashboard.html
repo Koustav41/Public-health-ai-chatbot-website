@@ -114,17 +114,14 @@
             <p style="color:var(--text-muted); font-size:0.9rem;">Get instant clinical guidance powered by
               evidence-based algorithms.</p>
           </div>
-          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <button type="button" class="btn btn-secondary btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Set
-              Gemini Key</button>
-            <span class="badge badge-secondary gemini-status-badge">📖 Offline Clinical Mode</span>
-            <label style="font-size:0.85rem; color:var(--text-muted);">Language:</label>
-            <select id="chat-lang-select" class="form-control" style="width:140px; padding:6px 10px;">
-              <option value="en">English</option>
-              <option value="hi">हिन्दी (Hindi)</option>
-              <option value="bn">বাংলা (Bengali)</option>
-            </select>
-          </div>
+
+          <span class="badge badge-secondary gemini-status-badge">📖 Offline Clinical Mode</span>
+          <label style="font-size:0.85rem; color:var(--text-muted);">Language:</label>
+          <select id="chat-lang-select" class="form-control" style="width:140px; padding:6px 10px;">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी (Hindi)</option>
+            <option value="bn">বাংলা (Bengali)</option>
+          </select>
         </div>
 
         <div class="glass-card chat-wrapper" style="padding:0; overflow:hidden;">
@@ -183,13 +180,17 @@
         <div id="hospital-search-status" class="search-status-bar" style="display:none;"></div>
 
         <!-- GOOGLE MAPS LAYER TOOLBAR -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.6); padding:10px 16px; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+        <div
+          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.6); padding:10px 16px; border-radius:var(--radius-md); border:1px solid var(--border-color);">
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <span class="badge badge-success" style="font-size:0.82rem; padding:6px 12px; display:inline-flex; align-items:center; gap:6px;">
+            <span class="badge badge-success"
+              style="font-size:0.82rem; padding:6px 12px; display:inline-flex; align-items:center; gap:6px;">
               <span>🗺️</span> Google Maps Active
             </span>
-            <label for="map-provider-select" style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">Map Layer:</label>
-            <select id="map-provider-select" class="form-control" style="width:200px; padding:6px 10px; font-size:0.85rem;" onchange="switchMapProvider(this.value)">
+            <label for="map-provider-select" style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">Map
+              Layer:</label>
+            <select id="map-provider-select" class="form-control"
+              style="width:200px; padding:6px 10px; font-size:0.85rem;" onchange="switchMapProvider(this.value)">
               <option value="google-roadmap" selected>🗺️ Google Maps (Road)</option>
               <option value="google-satellite">🛰️ Google Satellite</option>
               <option value="google-hybrid">🛣️ Google Hybrid</option>
@@ -198,10 +199,12 @@
             </select>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="openCurrentAreaInGoogleMaps()" title="Open current viewport on Google Maps">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="openCurrentAreaInGoogleMaps()"
+              title="Open current viewport on Google Maps">
               🗺️ Open in Google Maps ↗
             </button>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="openGoogleApiKeyModal()" title="Configure Google Maps API Key">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="openGoogleApiKeyModal()"
+              title="Configure Google Maps API Key">
               🔑 API Key
             </button>
           </div>
@@ -535,7 +538,8 @@
             </div>
 
             <!-- Quick Action Hub -->
-            <div class="glass-card quick-action-hub-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="glass-card quick-action-hub-grid"
+              style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
               <button class="btn btn-secondary" onclick="openPublicProfileView()">
                 🌐 Launch Public Profile
               </button>
@@ -591,7 +595,8 @@
         <label for="gmaps-api-key">Custom Google Maps API Key (Optional)</label>
         <input type="text" id="gmaps-api-key" class="form-control" placeholder="e.g. AIzaSy..." />
         <small style="color:var(--text-muted); font-size:0.8rem; margin-top:6px; display:block; line-height:1.4;">
-          Leave blank to use built-in Google Roadmap, Satellite, Hybrid, and Terrain layers with 1-click Google Maps Navigation directions.
+          Leave blank to use built-in Google Roadmap, Satellite, Hybrid, and Terrain layers with 1-click Google Maps
+          Navigation directions.
         </small>
       </div>
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
