@@ -1299,13 +1299,49 @@ const MAP_PROVIDERS = {
   }
 };
 
+const CITY_COORDINATES = {
+  'kolkata': { lat: 22.5726, lng: 88.3639, zoom: 12, name: 'Kolkata' },
+  'new delhi': { lat: 28.6139, lng: 77.2090, zoom: 12, name: 'New Delhi' },
+  'delhi': { lat: 28.6139, lng: 77.2090, zoom: 12, name: 'New Delhi' },
+  'mumbai': { lat: 19.0760, lng: 72.8777, zoom: 12, name: 'Mumbai' },
+  'bengaluru': { lat: 12.9716, lng: 77.5946, zoom: 12, name: 'Bengaluru' },
+  'bangalore': { lat: 12.9716, lng: 77.5946, zoom: 12, name: 'Bengaluru' },
+  'chennai': { lat: 13.0827, lng: 80.2707, zoom: 12, name: 'Chennai' },
+  'hyderabad': { lat: 17.3850, lng: 78.4867, zoom: 12, name: 'Hyderabad' }
+};
+
 const DEFAULT_HOSPITALS_DATA = [
-  { id: 'hosp-1', name: 'AIIMS New Delhi', lat: 28.5672, lng: 77.2100, beds: 18, emergency: true, rating: '4.9 ⭐', dist: '1.2 km', address: 'Sri Aurobindo Marg, Ansari Nagar, New Delhi' },
-  { id: 'hosp-2', name: 'Fortis Healthcare', lat: 28.5447, lng: 77.2646, beds: 8, emergency: true, rating: '4.7 ⭐', dist: '3.5 km', address: 'Okhla Road, New Delhi' },
-  { id: 'hosp-3', name: 'Max Super Speciality Hospital', lat: 28.5284, lng: 77.2185, beds: 14, emergency: true, rating: '4.8 ⭐', dist: '4.1 km', address: 'Press Enclave Road, Saket, New Delhi' },
-  { id: 'hosp-4', name: 'Apollo Clinic Specialty Center', lat: 28.5615, lng: 77.2401, beds: 5, emergency: false, rating: '4.5 ⭐', dist: '2.0 km', address: 'Lajpat Nagar III, New Delhi' },
-  { id: 'hosp-5', name: 'City Hospital', lat: 28.5500, lng: 77.2300, beds: 10, emergency: true, rating: '4.6 ⭐', dist: '1.8 km', address: 'Kalkaji, New Delhi' },
-  { id: 'hosp-6', name: 'Metro General Hospital', lat: 28.5800, lng: 77.2200, beds: 6, emergency: true, rating: '4.4 ⭐', dist: '2.5 km', address: 'Rohini, New Delhi' }
+  // Kolkata
+  { id: 'hosp-kol-1', name: 'SSKM Hospital (PG Hospital)', city: 'Kolkata', lat: 22.5385, lng: 88.3444, beds: 24, emergency: true, rating: '4.9 ⭐', dist: '1.5 km', address: 'AJC Bose Road, Bhowanipore, Kolkata, West Bengal' },
+  { id: 'hosp-kol-2', name: 'Apollo Multispecialty Hospital Kolkata', city: 'Kolkata', lat: 22.5735, lng: 88.4024, beds: 19, emergency: true, rating: '4.8 ⭐', dist: '3.2 km', address: '58 Canal Circular Road, Kadapara, Kolkata, West Bengal' },
+  { id: 'hosp-kol-3', name: 'AMRI Hospital Salt Lake', city: 'Kolkata', lat: 22.5855, lng: 88.4065, beds: 15, emergency: true, rating: '4.7 ⭐', dist: '2.8 km', address: 'JC Block, Salt Lake Sector 3, Kolkata, West Bengal' },
+  { id: 'hosp-kol-4', name: 'Fortis Hospital Anandapur Kolkata', city: 'Kolkata', lat: 22.5186, lng: 88.4028, beds: 12, emergency: true, rating: '4.8 ⭐', dist: '4.5 km', address: '730 EM Bypass, Anandapur, Kolkata, West Bengal' },
+  { id: 'hosp-kol-5', name: 'Peerless Hospital & BK Roy Centre', city: 'Kolkata', lat: 22.4827, lng: 88.3976, beds: 14, emergency: true, rating: '4.6 ⭐', dist: '5.1 km', address: '360 Panchasayar, EM Bypass, Kolkata, West Bengal' },
+  { id: 'hosp-kol-6', name: 'Medical College & Hospital Kolkata', city: 'Kolkata', lat: 22.5746, lng: 88.3618, beds: 30, emergency: true, rating: '4.7 ⭐', dist: '2.1 km', address: '88 College Street, College Square, Kolkata, West Bengal' },
+  { id: 'hosp-kol-7', name: 'Tata Medical Center Kolkata', city: 'Kolkata', lat: 22.5796, lng: 88.4862, beds: 16, emergency: true, rating: '4.9 ⭐', dist: '6.0 km', address: '14 MAR (EW), New Town, Rajarhat, Kolkata, West Bengal' },
+  { id: 'hosp-kol-8', name: 'Woodlands Multispeciality Hospital', city: 'Kolkata', lat: 22.5332, lng: 88.3308, beds: 10, emergency: true, rating: '4.6 ⭐', dist: '2.4 km', address: '8B Alipore Road, Alipore, Kolkata, West Bengal' },
+
+  // New Delhi & NCR
+  { id: 'hosp-del-1', name: 'AIIMS New Delhi', city: 'New Delhi', lat: 28.5672, lng: 77.2100, beds: 28, emergency: true, rating: '4.9 ⭐', dist: '1.2 km', address: 'Sri Aurobindo Marg, Ansari Nagar, New Delhi' },
+  { id: 'hosp-del-2', name: 'Fortis Healthcare Okhla', city: 'New Delhi', lat: 28.5447, lng: 77.2646, beds: 14, emergency: true, rating: '4.7 ⭐', dist: '3.5 km', address: 'Okhla Road, New Delhi' },
+  { id: 'hosp-del-3', name: 'Max Super Speciality Hospital Saket', city: 'New Delhi', lat: 28.5284, lng: 77.2185, beds: 18, emergency: true, rating: '4.8 ⭐', dist: '4.1 km', address: 'Press Enclave Road, Saket, New Delhi' },
+  { id: 'hosp-del-4', name: 'Apollo Hospital Indraprastha', city: 'New Delhi', lat: 28.5615, lng: 77.2831, beds: 22, emergency: true, rating: '4.8 ⭐', dist: '5.0 km', address: 'Mathura Road, Sarita Vihar, New Delhi' },
+  { id: 'hosp-del-5', name: 'Sir Ganga Ram Hospital', city: 'New Delhi', lat: 28.6386, lng: 77.1895, beds: 16, emergency: true, rating: '4.7 ⭐', dist: '6.2 km', address: 'Rajinder Nagar, New Delhi' },
+
+  // Mumbai
+  { id: 'hosp-mum-1', name: 'Lilavati Hospital & Research Centre', city: 'Mumbai', lat: 19.0506, lng: 72.8285, beds: 16, emergency: true, rating: '4.8 ⭐', dist: '2.0 km', address: 'A-791 Bandra Reclamation, Bandra West, Mumbai, Maharashtra' },
+  { id: 'hosp-mum-2', name: 'Kokilaben Dhirubhai Ambani Hospital', city: 'Mumbai', lat: 19.1311, lng: 72.8252, beds: 20, emergency: true, rating: '4.9 ⭐', dist: '4.2 km', address: 'Rao Saheb Achutrao Patwardhan Marg, Andheri West, Mumbai, Maharashtra' },
+  { id: 'hosp-mum-3', name: 'Tata Memorial Hospital', city: 'Mumbai', lat: 19.0048, lng: 72.8430, beds: 25, emergency: true, rating: '4.9 ⭐', dist: '3.0 km', address: 'Dr. Ernest Borges Road, Parel, Mumbai, Maharashtra' },
+
+  // Bengaluru
+  { id: 'hosp-blr-1', name: 'Manipal Hospital Old Airport Road', city: 'Bengaluru', lat: 12.9583, lng: 77.6487, beds: 21, emergency: true, rating: '4.8 ⭐', dist: '2.8 km', address: '98 HAL Old Airport Rd, Kodihalli, Bengaluru, Karnataka' },
+  { id: 'hosp-blr-2', name: 'Narayana Health City', city: 'Bengaluru', lat: 12.8123, lng: 77.6974, beds: 35, emergency: true, rating: '4.9 ⭐', dist: '8.4 km', address: '258/A Bommasandra Industrial Area, Anekal Taluk, Bengaluru, Karnataka' },
+
+  // Chennai
+  { id: 'hosp-maa-1', name: 'Apollo Hospital Greams Road', city: 'Chennai', lat: 13.0617, lng: 80.2520, beds: 26, emergency: true, rating: '4.9 ⭐', dist: '1.8 km', address: '21 Greams Lane, Thousand Lights, Chennai, Tamil Nadu' },
+
+  // Hyderabad
+  { id: 'hosp-hyd-1', name: 'Yashoda Hospital Somajiguda', city: 'Hyderabad', lat: 17.4262, lng: 78.4578, beds: 20, emergency: true, rating: '4.8 ⭐', dist: '2.1 km', address: 'Raj Bhavan Road, Somajiguda, Hyderabad, Telangana' }
 ];
 
 function getGoogleMapsDirectionsUrl(lat, lng, name) {
@@ -1318,7 +1354,7 @@ function openCurrentAreaInGoogleMaps() {
     const zoom = leafletMap.getZoom();
     window.open(`https://www.google.com/maps/@${center.lat},${center.lng},${zoom}z`, '_blank');
   } else {
-    window.open(`https://www.google.com/maps/search/hospitals/@28.5672,77.2100,13z`, '_blank');
+    window.open(`https://www.google.com/maps/search/hospitals/@22.5726,88.3639,12z`, '_blank');
   }
 }
 
@@ -1370,6 +1406,30 @@ function switchMapProvider(providerKey) {
   }
 }
 
+function filterHospitalsByCity(cityName) {
+  const searchInput = document.getElementById('hospital-search');
+  if (cityName === 'all') {
+    if (searchInput) searchInput.value = '';
+    activeHospitalsList = [...DEFAULT_HOSPITALS_DATA];
+    renderHospitalList(activeHospitalsList);
+    updateMapMarkers(activeHospitalsList);
+    showSearchStatus(`Showing all ${DEFAULT_HOSPITALS_DATA.length} hospitals across India.`, true);
+    if (leafletMap && window.L) {
+      leafletMap.flyTo([22.5726, 88.3639], 5, { animate: true, duration: 1.2 });
+    }
+    return;
+  }
+
+  if (searchInput) searchInput.value = cityName;
+  filterHospitalsLocal();
+
+  const cityKey = cityName.toLowerCase();
+  if (CITY_COORDINATES[cityKey] && leafletMap) {
+    const coords = CITY_COORDINATES[cityKey];
+    leafletMap.flyTo([coords.lat, coords.lng], coords.zoom, { animate: true, duration: 1.2 });
+  }
+}
+
 function initHospitalRadar() {
   activeHospitalsList = [...DEFAULT_HOSPITALS_DATA];
   renderHospitalList(activeHospitalsList);
@@ -1382,7 +1442,10 @@ function initHospitalRadar() {
   setTimeout(() => {
     const mapContainer = document.getElementById('hospital-map');
     if (mapContainer && window.L && !leafletMap) {
-      leafletMap = L.map('hospital-map').setView([28.5672, 77.2100], 13);
+      const userCity = (AppState.user && AppState.user.city) ? AppState.user.city.toLowerCase() : 'kolkata';
+      const initialCoords = CITY_COORDINATES[userCity] || CITY_COORDINATES['kolkata'] || { lat: 22.5726, lng: 88.3639, zoom: 12 };
+
+      leafletMap = L.map('hospital-map').setView([initialCoords.lat, initialCoords.lng], initialCoords.zoom);
 
       const config = MAP_PROVIDERS[currentMapProvider] || MAP_PROVIDERS['google-roadmap'];
       currentTileLayer = L.tileLayer(config.url, {
@@ -1535,6 +1598,7 @@ function filterHospitalsLocal() {
 
   const filtered = DEFAULT_HOSPITALS_DATA.filter(h =>
     h.name.toLowerCase().includes(query) ||
+    (h.city && h.city.toLowerCase().includes(query)) ||
     (h.address && h.address.toLowerCase().includes(query))
   );
 
@@ -1542,7 +1606,12 @@ function filterHospitalsLocal() {
     activeHospitalsList = filtered;
     renderHospitalList(activeHospitalsList);
     updateMapMarkers(activeHospitalsList);
-    showSearchStatus(`Filtered ${filtered.length} local hospital(s). Press Enter or click 'Search Map' to search globally on OpenStreetMap.`, true);
+    showSearchStatus(`Filtered ${filtered.length} hospital(s) matching "${escapeHtml(query)}". Press Enter or click 'Search Map' to search globally on OpenStreetMap.`, true);
+
+    if (CITY_COORDINATES[query] && leafletMap) {
+      const coords = CITY_COORDINATES[query];
+      leafletMap.flyTo([coords.lat, coords.lng], coords.zoom, { animate: true, duration: 1 });
+    }
   } else {
     // If not found in local presets, offer global map search automatically
     triggerGlobalHospitalSearch();

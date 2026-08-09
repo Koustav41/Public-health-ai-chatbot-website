@@ -115,7 +115,6 @@
               evidence-based algorithms.</p>
           </div>
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <button type="button" class="btn btn-success btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Key Configured ✓</button>
             <span class="badge badge-success gemini-status-badge">✨ Gemini AI Active</span>
             <label style="font-size:0.85rem; color:var(--text-muted);">Language:</label>
             <select id="chat-lang-select" class="form-control" style="width:140px; padding:6px 10px;">
@@ -180,6 +179,18 @@
         </div>
 
         <div id="hospital-search-status" class="search-status-bar" style="display:none;"></div>
+
+        <!-- QUICK CITY SELECTOR BAR -->
+        <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; background:rgba(15,23,42,0.4); padding:10px 14px; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600; display:inline-flex; align-items:center; gap:4px;">🌆 Quick City Filter:</span>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="filterHospitalsByCity('all')">🌐 All India</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="filterHospitalsByCity('Kolkata')">🌇 Kolkata</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="filterHospitalsByCity('New Delhi')">🏛️ New Delhi</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="filterHospitalsByCity('Mumbai')">🌊 Mumbai</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="filterHospitalsByCity('Bengaluru')">💻 Bengaluru</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="filterHospitalsByCity('Chennai')">🏖️ Chennai</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="filterHospitalsByCity('Hyderabad')">🏰 Hyderabad</button>
+        </div>
 
         <!-- GOOGLE MAPS LAYER TOOLBAR -->
         <div
