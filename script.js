@@ -653,6 +653,11 @@ async function sendChatMessage(textOverride) {
 
   const apiKey = getGeminiApiKey();
 
+  const finalizeSend = () => {
+    scrollToChatBottom();
+    if (input) input.focus();
+  };
+
   if (apiKey) {
     try {
       const geminiReply = await fetchGeminiResponse(query, AppState.currentLang);
@@ -660,6 +665,7 @@ async function sendChatMessage(textOverride) {
       const replyWithBadge = `<div style="margin-bottom:6px;"><span class="badge badge-success" style="font-size:0.7rem; padding:2px 6px;">✨ Gemini AI</span></div>${formatChatMessageText(geminiReply)}`;
       addChatMessage('bot', replyWithBadge);
       speakResponse(stripHtmlTags(geminiReply));
+      finalizeSend();
       return;
     } catch (err) {
       console.warn('Gemini API request failed, falling back to local clinical knowledge base:', err);
@@ -668,6 +674,7 @@ async function sendChatMessage(textOverride) {
       const errHeader = `<div style="font-size:0.75rem; color:#f87171; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); padding:4px 8px; border-radius:4px; margin-bottom:8px;">⚠️ Gemini API Error (${escapeHtml(err.message || 'Call failed')}). Using offline clinical database:</div>`;
       addChatMessage('bot', errHeader + formatChatMessageText(fallbackReply));
       speakResponse(stripHtmlTags(fallbackReply));
+      finalizeSend();
       return;
     }
   }
@@ -679,6 +686,7 @@ async function sendChatMessage(textOverride) {
     const tipNote = `<div style="font-size:0.75rem; opacity:0.85; margin-top:8px; border-top:1px dashed rgba(255,255,255,0.15); padding-top:6px; color:var(--text-muted);">💡 <i>Tip: Click '🔑 Set Gemini Key' to activate live Google Gemini responses.</i></div>`;
     addChatMessage('bot', formatChatMessageText(botReply) + tipNote);
     speakResponse(stripHtmlTags(botReply));
+    finalizeSend();
   }, 500);
 }
 
@@ -696,6 +704,17 @@ function generateAIResponse(text) {
   return dict.default;
 }
 
+function scrollToChatBottom() {
+  const chatBox = document.getElementById('chat-messages');
+  if (!chatBox) return;
+  requestAnimationFrame(() => {
+    chatBox.scrollTop = chatBox.scrollHeight;
+    setTimeout(() => {
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }, 80);
+  });
+}
+
 function addChatMessage(sender, text) {
   const chatBox = document.getElementById('chat-messages');
   if (!chatBox) return;
@@ -710,7 +729,7 @@ function addChatMessage(sender, text) {
   `;
 
   chatBox.appendChild(msgDiv);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  scrollToChatBottom();
 }
 
 function showTypingIndicator() {
@@ -723,7 +742,7 @@ function showTypingIndicator() {
   indicator.style.opacity = '0.7';
   indicator.textContent = 'Mediyogi AI is analyzing medical guidelines...';
   chatBox.appendChild(indicator);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  scrollToChatBottom();
 }
 
 function removeTypingIndicator() {

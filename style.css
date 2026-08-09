@@ -662,26 +662,37 @@ textarea.form-control {
   grid-template-columns: 1fr 340px;
   gap: 24px;
   height: calc(100vh - 160px);
+  min-height: 500px;
+  max-height: calc(100vh - 120px);
 }
 
 .chat-container {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 .chat-box {
-  flex: 1;
+  flex: 1 1 0%;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .chat-message {
-  max-width: 80%;
+  max-width: 85%;
+  word-break: break-word;
+  overflow-wrap: break-word;
   padding: 14px 18px;
   border-radius: 18px;
   font-size: 0.95rem;
@@ -718,12 +729,16 @@ textarea.form-control {
 }
 
 .chat-composer {
+  flex-shrink: 0;
   padding: 16px;
   background: var(--bg-chat-composer);
   border-top: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   gap: 10px;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .composer-input-row {
