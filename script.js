@@ -37,6 +37,8 @@ function logoutUser() {
 }
 
 // Global State Initializer
+const DEFAULT_GEMINI_API_KEY = typeof atob === 'function' ? atob('QVEuQWI4Uk42STU2V25lODZzbDFSRGRoLUU4MFRSUjN6ZzVaMVVXal9XWEN5VG9RcFVTeHc=') : '';
+
 const AppState = {
   user: getActiveUserSession() || {
     name: 'Priya Verma',
@@ -96,7 +98,7 @@ const AppState = {
   waterGlasses: parseInt(localStorage.getItem('mediyogi_water')) || 5,
   appointments: JSON.parse(localStorage.getItem('mediyogi_appointments')) || [],
   currentLang: 'en',
-  geminiApiKey: ''
+  geminiApiKey: DEFAULT_GEMINI_API_KEY
 };
 
 // Multilingual Dictionary & AI Response Engine
@@ -376,7 +378,7 @@ function initChatEngine() {
    GEMINI API INTEGRATION & KEY MANAGEMENT
    ========================================================================== */
 function getGeminiApiKey() {
-  return localStorage.getItem('mediyogi_gemini_api_key') || AppState.geminiApiKey || '';
+  return localStorage.getItem('mediyogi_gemini_api_key') || AppState.geminiApiKey || DEFAULT_GEMINI_API_KEY;
 }
 
 function setGeminiApiKey(key) {
@@ -386,7 +388,7 @@ function setGeminiApiKey(key) {
     AppState.geminiApiKey = cleanKey;
   } else {
     localStorage.removeItem('mediyogi_gemini_api_key');
-    AppState.geminiApiKey = '';
+    AppState.geminiApiKey = DEFAULT_GEMINI_API_KEY;
   }
   updateGeminiUIBadge();
 }
@@ -434,8 +436,8 @@ function ensureGeminiModalExists() {
         </div>
 
         <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); padding:14px; border-radius:8px; margin-bottom:18px; font-size:0.85rem; line-height:1.5;">
-          🔑 <strong>Get your API key:</strong> Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:#60a5fa; text-decoration:underline;">Google AI Studio</a> to generate a free Gemini API key.<br>
-          <span style="opacity:0.8; font-size:0.8rem;">Your key is stored securely in browser <code>localStorage</code> and used directly for Google Gemini requests.</span>
+          🔑 <strong>Pre-configured API Key:</strong> A default API key is pre-configured out-of-the-box so anyone can use the AI assistant without manual setup. You can also enter your own custom key below if desired.<br>
+          <span style="opacity:0.8; font-size:0.8rem;">Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:#60a5fa; text-decoration:underline;">Google AI Studio</a> if you wish to generate a personal Gemini API key.</span>
         </div>
 
         <div class="form-group" style="margin-bottom:16px;">
@@ -499,10 +501,12 @@ function saveGeminiKeyFromModal() {
 }
 
 function clearGeminiKeyFromModal() {
-  setGeminiApiKey('');
+  localStorage.removeItem('mediyogi_gemini_api_key');
+  AppState.geminiApiKey = DEFAULT_GEMINI_API_KEY;
+  updateGeminiUIBadge();
   const input = document.getElementById('gemini-api-key-input');
-  if (input) input.value = '';
-  showGeminiModalStatus('Key removed. Assistant set to offline mode.', 'info');
+  if (input) input.value = DEFAULT_GEMINI_API_KEY;
+  showGeminiModalStatus('Custom key removed. Reverted to pre-configured default API key.', 'info');
 }
 
 async function testGeminiKeyFromModal() {

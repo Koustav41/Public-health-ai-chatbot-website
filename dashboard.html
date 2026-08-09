@@ -114,14 +114,16 @@
             <p style="color:var(--text-muted); font-size:0.9rem;">Get instant clinical guidance powered by
               evidence-based algorithms.</p>
           </div>
-
-          <span class="badge badge-secondary gemini-status-badge">📖 Offline Clinical Mode</span>
-          <label style="font-size:0.85rem; color:var(--text-muted);">Language:</label>
-          <select id="chat-lang-select" class="form-control" style="width:140px; padding:6px 10px;">
-            <option value="en">English</option>
-            <option value="hi">हिन्दी (Hindi)</option>
-            <option value="bn">বাংলা (Bengali)</option>
-          </select>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <button type="button" class="btn btn-success btn-sm btn-gemini-key" onclick="openGeminiModal()">🔑 Key Configured ✓</button>
+            <span class="badge badge-success gemini-status-badge">✨ Gemini AI Active</span>
+            <label style="font-size:0.85rem; color:var(--text-muted);">Language:</label>
+            <select id="chat-lang-select" class="form-control" style="width:140px; padding:6px 10px;">
+              <option value="en">English</option>
+              <option value="hi">हिन्दी (Hindi)</option>
+              <option value="bn">বাংলা (Bengali)</option>
+            </select>
+          </div>
         </div>
 
         <div class="glass-card chat-wrapper" style="padding:0; overflow:hidden;">
