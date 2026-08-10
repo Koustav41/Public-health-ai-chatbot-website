@@ -17,10 +17,9 @@ function checkAuthGuard() {
   const activeUser = getActiveUserSession();
   const currentPath = window.location.pathname.toLowerCase();
 
-  // Protected routes check
+  // Protected routes check (profile.html is public for paramedic/emergency scans)
   const isProtectedPage = currentPath.includes('dashboard.html') ||
-    currentPath.includes('ai.html') ||
-    currentPath.includes('profile.html');
+    currentPath.includes('ai.html');
 
   if (isProtectedPage && !activeUser) {
     const pageName = currentPath.substring(currentPath.lastIndexOf('/') + 1) || 'dashboard.html';
@@ -2563,7 +2562,11 @@ function updateProfileCardPreview() {
   if (cardBlood) cardBlood.textContent = AppState.user.bloodGroup;
 
   const cardEmergency = document.getElementById('card-emergency');
-  if (cardEmergency) cardEmergency.textContent = `${AppState.user.emergencyName} (${AppState.user.emergencyPhone})`;
+  if (cardEmergency) {
+    const eName = AppState.user.emergencyName || 'Rajesh Verma (Father)';
+    const ePhone = AppState.user.emergencyPhone || '+91 98765 43211';
+    cardEmergency.textContent = `${eName} (${ePhone})`;
+  }
 
   const cardDonor = document.getElementById('card-organ-donor');
   if (cardDonor) cardDonor.textContent = AppState.user.organDonor || 'Yes';
@@ -2584,8 +2587,7 @@ function updateProfileCardPreview() {
 }
 
 function copyPublicProfileLink() {
-  const baseUrl = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
-  const publicUrl = `${baseUrl}profile.html?id=${encodeURIComponent(AppState.user.healthId)}`;
+  const publicUrl = getPublicProfileUrl(AppState.user ? AppState.user.healthId : '');
 
   navigator.clipboard.writeText(publicUrl).then(() => {
     showToast('📋 Public Health Profile link copied to clipboard!');
@@ -2654,58 +2656,28 @@ function showToast(message, type = 'success') {
   }, 3500);
 }
 
+function getPublicProfileUrl(healthId) {
+  const targetId = healthId || (AppState && AppState.user ? AppState.user.healthId : 'ABDM-91-8420-1129-90');
+  const baseUrl = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+  return `${baseUrl}profile.html?healthId=${encodeURIComponent(targetId)}`;
+}
+
 function renderProfileQRCodes() {
   const containers = document.querySelectorAll('.qr-code-box');
   if (!containers.length) return;
 
-  const textToEncode = `${window.location.origin}/profile.html?healthId=${AppState.user.healthId}`;
+  const healthId = AppState.user ? AppState.user.healthId : 'ABDM-91-8420-1129-90';
+  const profileUrl = getPublicProfileUrl(healthId);
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(profileUrl)}`;
 
-  // Deterministic SVG QR-like pattern generator
-  const svg = generateSVGQRCode(textToEncode, 130);
   containers.forEach(box => {
-    box.innerHTML = svg;
+    box.innerHTML = `
+      <div style="background:#ffffff; padding:10px; border-radius:14px; display:inline-block; text-align:center; box-shadow:0 4px 18px rgba(0,0,0,0.35); border:2px solid rgba(16,185,129,0.4);">
+        <img src="${qrImageUrl}" alt="Emergency Medical Profile QR Code" style="width:130px; height:130px; display:block; border-radius:6px;" />
+        <span style="font-size:0.72rem; color:#0b0f19; font-weight:800; margin-top:6px; letter-spacing:0.5px; text-transform:uppercase; display:block;">📷 Scan with Camera</span>
+      </div>
+    `;
   });
-}
-
-function generateSVGQRCode(text, size = 120) {
-  // Deterministic grid generator for vector QR appearance
-  const cols = 21;
-  const tileSize = size / cols;
-  let rects = '';
-
-  // Finder Patterns (3 corners)
-  const drawFinder = (startX, startY) => {
-    rects += `<rect x="${startX * tileSize}" y="${startY * tileSize}" width="${7 * tileSize}" height="${7 * tileSize}" fill="#10b981" rx="2"/>`;
-    rects += `<rect x="${(startX + 1) * tileSize}" y="${(startY + 1) * tileSize}" width="${5 * tileSize}" height="${5 * tileSize}" fill="#0b0f19" rx="1"/>`;
-    rects += `<rect x="${(startX + 2) * tileSize}" y="${(startY + 2) * tileSize}" width="${3 * tileSize}" height="${3 * tileSize}" fill="#10b981" rx="1"/>`;
-  };
-
-  drawFinder(0, 0);
-  drawFinder(cols - 7, 0);
-  drawFinder(0, cols - 7);
-
-  // Hash-based pseudo random data fill
-  let hash = 0;
-  for (let i = 0; i < text.length; i++) {
-    hash = (hash << 5) - hash + text.charCodeAt(i);
-    hash |= 0;
-  }
-
-  for (let r = 0; r < cols; r++) {
-    for (let c = 0; c < cols; c++) {
-      // Skip finder pattern zones
-      if ((r < 7 && c < 7) || (r < 7 && c >= cols - 7) || (r >= cols - 7 && c < 7)) continue;
-
-      const seed = Math.abs((hash ^ (r * 31 + c * 17)) % 100);
-      if (seed > 45) {
-        const x = c * tileSize;
-        const y = r * tileSize;
-        rects += `<rect x="${x}" y="${y}" width="${tileSize - 0.5}" height="${tileSize - 0.5}" fill="${seed > 80 ? '#06b6d4' : '#f8fafc'}" opacity="0.9" rx="0.5"/>`;
-      }
-    }
-  }
-
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" style="background:#0b0f19; padding:8px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">${rects}</svg>`;
 }
 
 function sendEmergencyAlert() {
