@@ -19,7 +19,8 @@ const STATIC_ASSETS = [
     'login.js',
     'manifest.webmanifest',
     'icons/icon-192.png',
-    'icons/icon-512.png'
+    'icons/icon-512.png',
+    'icons/White and Blue Illustrative Online Medical Center Logo.jpg'
 ];
 
 // Install Event - Pre-cache core static resources & activate immediately
