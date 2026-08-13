@@ -1,0 +1,81 @@
+{
+  "name": "Mediyogi — Next-Gen Public Health Companion & AI Triage",
+  "short_name": "Mediyogi",
+  "description": "AI-powered public health platform providing multilingual AI triage, smart EHR lab report analysis, hospital radar, and emergency vital tracking.",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "categories": [
+    "health",
+    "medical",
+    "lifestyle"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "AI HealthBot Chat",
+      "short_name": "AI Chat",
+      "description": "Consult Mediyogi AI Healthbot",
+      "url": "./ai.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Patient Dashboard",
+      "short_name": "Dashboard",
+      "description": "View vitals, lab reports & hospital radar",
+      "url": "./dashboard.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Emergency Profile",
+      "short_name": "Emergency",
+      "description": "Access emergency health profile & ABDM card",
+      "url": "./profile.html",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

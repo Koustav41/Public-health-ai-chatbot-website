@@ -5,7 +5,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mediyogi — Next-Gen Public Health Companion & AI Triage</title>
-  <link rel="website icon" type="jpg" href=".github/White and Blue Illustrative Online Medical Center Logo.jpg">
+  <link rel="icon" type="image/jpeg" href=".github/White and Blue Illustrative Online Medical Center Logo.jpg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#10b981" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Mediyogi" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <meta name="description"
     content="Mediyogi is an AI-powered public health platform providing multilingual AI triage, smart EHR lab report analysis, hospital radar, and vital tracking." />
   <link rel="stylesheet" href="style.css" />
@@ -34,6 +41,11 @@
       <li><a href="profile.html">Emergency Profile</a></li>
       <li><a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a></li>
       <li id="nav-auth-btn"><a href="login.html" class="btn btn-primary btn-sm">Login / Register</a></li>
+      <li>
+        <button type="button" class="btn btn-sm pwa-install-btn" onclick="triggerPwaInstall()" style="display:none; align-items:center; gap:6px; background:rgba(16,185,129,0.15); border:1px solid var(--primary); color:var(--primary); cursor:pointer;">
+          📲 <span>Install App</span>
+        </button>
+      </li>
       <li>
         <button type="button" class="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">
           <span class="theme-icon">🌙</span>

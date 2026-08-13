@@ -2703,3 +2703,58 @@ function closeModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) modal.classList.remove('active');
 }
+
+/* ==========================================================================
+   PWA SERVICE WORKER REGISTRATION & INSTALL PROMPT
+   ========================================================================== */
+let deferredPwaInstallPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then((reg) => {
+        console.log('[PWA] ServiceWorker registered with scope:', reg.scope);
+      })
+      .catch((err) => {
+        console.error('[PWA] ServiceWorker registration failed:', err);
+      });
+  });
+}
+
+// Capture PWA Install Prompt Event
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPwaInstallPrompt = e;
+  console.log('[PWA] beforeinstallprompt event captured');
+  
+  // Show any install app buttons present in UI
+  const installBtns = document.querySelectorAll('.pwa-install-btn');
+  installBtns.forEach(btn => {
+    btn.style.display = 'inline-flex';
+  });
+});
+
+function triggerPwaInstall() {
+  if (deferredPwaInstallPrompt) {
+    deferredPwaInstallPrompt.prompt();
+    deferredPwaInstallPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('[PWA] User accepted the install prompt');
+        const installBtns = document.querySelectorAll('.pwa-install-btn');
+        installBtns.forEach(btn => btn.style.display = 'none');
+      }
+      deferredPwaInstallPrompt = null;
+    });
+  } else {
+    alert('💡 To install Mediyogi as a Desktop/Mobile App:\n\n1. Make sure you access the site via a Web Server (e.g. http://localhost:8000) rather than opening raw HTML files (file://).\n2. Chrome/Edge: Look for the Install icon 📥 in your address bar or Menu (⋮) -> "Install Mediyogi".\n3. iOS Safari: Tap Share (⎋) -> "Add to Home Screen".');
+  }
+}
+
+window.addEventListener('appinstalled', () => {
+  console.log('[PWA] Mediyogi App was successfully installed!');
+  deferredPwaInstallPrompt = null;
+  const installBtns = document.querySelectorAll('.pwa-install-btn');
+  installBtns.forEach(btn => btn.style.display = 'none');
+});
+
+
