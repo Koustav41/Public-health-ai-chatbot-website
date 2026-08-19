@@ -1509,6 +1509,16 @@ textarea.form-control {
     justify-content: center;
   }
 
+  .quick-action-hub-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .quick-action-hub-grid .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
   .ai-top-bar {
     padding: 12px 16px 0;
   }

@@ -500,13 +500,13 @@
 
           <!-- ABDM Health Card Preview -->
           <div style="display:flex; flex-direction:column; gap:20px;">
-            <div class="glass-card"
-              style="background:linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(6,182,212,0.12) 100%); border:1px solid rgba(16,185,129,0.3); position:relative; overflow:hidden;">
+            <div class="glass-card abdm-health-card-preview"
+              style="border:1px solid var(--border-highlight); position:relative; overflow:hidden; border-radius:var(--radius-xl); box-shadow:var(--shadow-md);">
               <div
-                style="position:absolute; top:-20px; right:-20px; width:120px; height:120px; background:rgba(16,185,129,0.1); border-radius:50%; filter:blur(20px);">
+                style="position:absolute; top:-20px; right:-20px; width:120px; height:120px; background:var(--primary-glow); border-radius:50%; filter:blur(20px); pointer-events:none;">
               </div>
 
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
                 <div>
                   <span
                     style="font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--primary);">Ayushman
@@ -518,14 +518,14 @@
               </div>
 
               <div
-                style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border-color); flex-wrap:wrap;">
                 <div id="card-avatar" class="avatar"
-                  style="width:60px; height:60px; font-size:1.5rem; background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color:#fff; border-radius:16px; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 4px 15px var(--primary-glow);">
+                  style="width:60px; height:60px; font-size:1.5rem; background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color:#fff; border-radius:16px; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 4px 15px var(--primary-glow); flex-shrink:0;">
                   PV</div>
-                <div>
-                  <h3 id="card-user-name" style="font-size:1.4rem; font-weight:800; color:#fff;">Priya Verma</h3>
+                <div style="flex:1; min-width:180px;">
+                  <h3 id="card-user-name" style="font-size:1.4rem; font-weight:800; color:var(--text-main); line-height:1.2;">Priya Verma</h3>
                   <p id="card-health-id"
-                    style="font-size:1.05rem; font-family:monospace; color:var(--secondary); font-weight:700; margin-top:2px;">
+                    style="font-size:1.05rem; font-family:monospace; color:var(--secondary); font-weight:700; margin-top:4px; word-break:break-all;">
                     ABDM-91-8420-1129-90</p>
                 </div>
               </div>
@@ -533,24 +533,24 @@
               <div
                 style="display:grid; grid-template-columns:1fr 1fr; gap:14px; font-size:0.88rem; margin-bottom:20px;">
                 <div><span style="color:var(--text-muted);">Gender:</span> <strong id="card-gender"
-                    style="color:#fff;">Female</strong></div>
+                    style="color:var(--text-main); font-weight:700;">Female</strong></div>
                 <div><span style="color:var(--text-muted);">Year of Birth:</span> <strong id="card-yob"
-                    style="color:#fff;">1998</strong></div>
+                    style="color:var(--text-main); font-weight:700;">1998</strong></div>
                 <div><span style="color:var(--text-muted);">Blood Group:</span> <strong id="card-blood"
                     style="color:var(--danger); font-weight:800;">O+ Positive</strong></div>
                 <div><span style="color:var(--text-muted);">Organ Donor:</span> <strong id="card-organ-donor"
-                    style="color:var(--primary);">Yes</strong></div>
+                    style="color:var(--primary); font-weight:700;">Yes</strong></div>
                 <div style="grid-column:span 2;"><span style="color:var(--text-muted);">Emergency Contact:</span>
-                  <strong id="card-emergency" style="color:var(--warning);">Rajesh Verma (+91 98765 43211)</strong>
+                  <strong id="card-emergency" style="color:var(--warning); font-weight:700;">Rajesh Verma (+91 98765 43211)</strong>
                 </div>
               </div>
 
               <div
-                style="background:rgba(11,15,25,0.7); border-radius:14px; padding:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; border:1px solid var(--border-color);">
-                <div>
-                  <strong style="font-size:0.9rem; display:block; color:#fff; margin-bottom:4px;">Emergency QR
+                style="background:var(--bg-input); border-radius:14px; padding:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; border:1px solid var(--border-color); flex-wrap:wrap;">
+                <div style="flex:1; min-width:160px;">
+                  <strong style="font-size:0.92rem; display:block; color:var(--text-main); margin-bottom:4px; font-weight:700;">Emergency QR
                     Scan</strong>
-                  <p style="font-size:0.8rem; color:var(--text-muted);">Scan with smartphone camera for instant
+                  <p style="font-size:0.8rem; color:var(--text-muted); margin:0;">Scan with smartphone camera for instant
                     responder access.</p>
                 </div>
                 <div class="qr-code-box" style="flex-shrink:0;"></div>
