@@ -524,8 +524,26 @@ async function testGeminiKeyFromModal() {
       showGeminiModalStatus('✅ Gemini API Connection Successful! API Key is valid.', 'success');
     }
   } catch (err) {
-    showGeminiModalStatus(`❌ Test Failed: ${escapeHtml(err.message || 'Unknown error')}`, 'error');
+    const cleanErrMsg = getCleanGeminiErrorMessage(err);
+    showGeminiModalStatus(`❌ Test Failed: ${escapeHtml(cleanErrMsg)}`, 'error');
   }
+}
+
+function getCleanGeminiErrorMessage(err) {
+  const msg = err && err.message ? err.message : '';
+  if (msg.includes('Quota exceeded') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('429')) {
+    return 'Quota Exceeded / Free Tier Limit Reached';
+  }
+  if (msg.includes('API key') || msg.includes('PERMISSION_DENIED') || msg.includes('403') || msg.includes('INVALID_ARGUMENT')) {
+    return 'Invalid or Unauthorized API Key';
+  }
+  if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+    return 'Network Connection Error';
+  }
+  if (msg.length > 80) {
+    return msg.substring(0, 77) + '...';
+  }
+  return msg || 'Call failed';
 }
 
 function showGeminiModalStatus(msg, type) {
@@ -573,7 +591,7 @@ Respond in the language matching: ${lang === 'hi' ? 'Hindi (हिन्दी)'
     }
   };
 
-  const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3-pro', 'gemini-flash-latest', 'gemini-pro-latest'];
+  const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
   let lastErr = null;
 
   for (const model of models) {
@@ -601,7 +619,15 @@ Respond in the language matching: ${lang === 'hi' ? 'Hindi (हिन्दी)'
     } catch (err) {
       console.warn(`Gemini model ${model} failed:`, err);
       lastErr = err;
-      if (err.message && (err.message.includes('API key') || err.message.includes('PERMISSION_DENIED') || err.message.includes('403'))) {
+      const msg = err.message || '';
+      if (
+        msg.includes('API key') ||
+        msg.includes('PERMISSION_DENIED') ||
+        msg.includes('403') ||
+        msg.includes('Quota exceeded') ||
+        msg.includes('RESOURCE_EXHAUSTED') ||
+        msg.includes('429')
+      ) {
         break;
       }
     }
@@ -670,7 +696,11 @@ async function sendChatMessage(textOverride) {
       console.warn('Gemini API request failed, falling back to local clinical knowledge base:', err);
       removeTypingIndicator();
       const fallbackReply = generateAIResponse(query);
-      const errHeader = `<div style="font-size:0.75rem; color:#f87171; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); padding:4px 8px; border-radius:4px; margin-bottom:8px;">⚠️ Gemini API Error (${escapeHtml(err.message || 'Call failed')}). Using offline clinical database:</div>`;
+      const cleanErrMsg = getCleanGeminiErrorMessage(err);
+      const errHeader = `<div style="font-size:0.75rem; color:#f87171; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); padding:6px 10px; border-radius:6px; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+        <span>⚠️ Gemini API Notice (${escapeHtml(cleanErrMsg)}). Using offline clinical database:</span>
+        <button type="button" onclick="openGeminiModal()" style="font-size:0.7rem; padding:2px 6px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:4px; cursor:pointer;">🔑 Change API Key</button>
+      </div>`;
       addChatMessage('bot', errHeader + formatChatMessageText(fallbackReply));
       speakResponse(stripHtmlTags(fallbackReply));
       finalizeSend();
